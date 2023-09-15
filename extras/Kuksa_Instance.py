@@ -1,3 +1,19 @@
+"""
+   Copyright 2023 Suchinton Chakravarty
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+"""
+
 from typing import Optional
 import kuksa_client as kuksa
 import threading
@@ -6,60 +22,130 @@ import time
 from extras import config
 
 class KuksaClientSingleton:
-    __instance: Optional["KuksaClientSingleton"] = None
-    __lock = threading.Lock()
+    """
+    A singleton class that provides a single instance of KuksaClientThread.
+
+    This class is thread-safe and ensures that only one instance of KuksaClientThread is created.
+
+    Attributes:
+        _instance (Optional[KuksaClientSingleton]): The instance of the class.
+        _lock (threading.Lock): A lock to ensure thread-safety.
+        config (dict): The configuration for KuksaClientThread.
+        token (str): The path to the token file.
+        client (KuksaClientThread): The instance of KuksaClientThread.
+
+    Methods:
+        instance() -> KuksaClientSingleton: Returns the instance of the class.
+        reconnect(config, token) -> KuksaClientThread: Reconnects the client with the given configuration and token.
+        get_client() -> Optional[KuksaClientThread]: Returns the client instance.
+        get_config() -> dict: Returns the configuration.
+        get_token() -> str: Returns the path to the token file.
+        status() -> bool: Returns the status of the client connection.
+    """
+
+    _instance: Optional["KuksaClientSingleton"] = None
+    _lock = threading.Lock()
 
     @staticmethod
-    def get_instance() -> "KuksaClientSingleton":
-        if KuksaClientSingleton.__instance is None:
-            with KuksaClientSingleton.__lock:
-                if KuksaClientSingleton.__instance is None:
-                    KuksaClientSingleton.__instance = KuksaClientSingleton()
-        return KuksaClientSingleton.__instance
+    def instance() -> "KuksaClientSingleton":
+        """
+        Returns the instance of the class.
+
+        If the instance does not exist, it creates a new instance.
+
+        Returns:
+            KuksaClientSingleton: The instance of the class.
+        """
+        if KuksaClientSingleton._instance is None:
+            with KuksaClientSingleton._lock:
+                if KuksaClientSingleton._instance is None:
+                    KuksaClientSingleton._instance = KuksaClientSingleton()
+        return KuksaClientSingleton._instance
 
     def __init__(self):
-        if KuksaClientSingleton.__instance is not None:
+        """
+        Initializes the class.
+
+        If the instance already exists, it raises an exception.
+
+        It initializes the configuration, token and client instance.
+        """
+        if KuksaClientSingleton._instance is not None:
             raise Exception("This class is a singleton!")
-        else:
 
-            self.default_Config = config.KUKSA_CONFIG
-            self.token = config.TOKEN_PATH
+        self.config = config.KUKSA_CONFIG
+        self.token = config.TOKEN_PATH
 
-            try:
-                self.client = kuksa.KuksaClientThread(self.default_Config)
-                self.client.authorize(self.token)
-                time.sleep(2)
-                if self.client.checkConnection() == False:
-                    self.client = None
-            except Exception as e:
-                print(e)
-                
+        try:
+            self.client = kuksa.KuksaClientThread(self.config)
+            self.client.authorize(self.token)
+            time.sleep(2)
+            if not self.client.checkConnection():
+                self.client = None
+        except Exception as e:
+            print(e)
 
-            KuksaClientSingleton.__instance = self
+        KuksaClientSingleton._instance = self
 
-    def reconnect_client(self, new_Config, new_Token):
-        if self.client is not None:
+    def reconnect(self, config, token):
+        """
+        Reconnects the client with the given configuration and token.
+
+        Args:
+            config (dict): The configuration for KuksaClientThread.
+            token (str): The path to the token file.
+
+        Returns:
+            KuksaClientThread: The instance of KuksaClientThread.
+        """
+        if self.client:
             self.client.stop()
-        self.client = kuksa.KuksaClientThread(new_Config)
-        self.client.authorize(new_Token)
+        self.client = kuksa.KuksaClientThread(config)
+        self.client.authorize(token)
         return self.client
 
     def get_client(self):
-        return self.client        
-    
+        """
+        Returns the client instance.
+
+        Returns:
+            Optional[KuksaClientThread]: The instance of KuksaClientThread.
+        """
+        if self.client:
+            return self.client
+        else:
+            return None
+        
     def get_config(self):
-        return self.default_Config
+        """
+        Returns the configuration.
+
+        Returns:
+            dict: The configuration for KuksaClientThread.
+        """
+        return self.config
     
     def get_token(self):
+        """
+        Returns the path to the token file.
+
+        Returns:
+            str: The path to the token file.
+        """
         return self.token
 
-    def get_status(self):
-        if self.client is not None:
-            return self.client.checkConnection()
-        else:
-            return False
+    def status(self):
+        """
+        Returns the status of the client connection.
+
+        Returns:
+            bool: The status of the client connection.
+        """
+        return self.client.checkConnection() if self.client else False
 
     def __del__(self):
-        if self.client is not None:
+        """
+        Stops the client instance.
+        """
+        if self.client:
             self.client.stop()
-        return None
