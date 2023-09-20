@@ -20,33 +20,36 @@ import os
 from PyQt5 import uic, QtCore, QtWidgets
 from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
 from functools import partial
-from PyQt5.QtGui import QFontDatabase
+from PyQt5 import QtGui
+from PyQt5.QtCore import Qt
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 Form, Base = uic.loadUiType(os.path.join(current_dir, "Main_Window.ui"))
 
 from extras.UI_Handeler import *
+from Widgets.Dashboard import Dashboard
 
 class MainWindow(Base, Form):
+    """
+    The main window of the AGL Demo Control Panel application.
+    Inherits from the Base and Form classes.
+    """
 
     # signal to stop the thread
     stop_thread_signal = QtCore.pyqtSignal()
     start_thread_signal = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
+        """
+        Initializes the MainWindow object.
+        Sets up the UI, window flags, and geometry.
+        Connects signals and slots for window controls and widget navigation.
+        Initializes the Dashboard object and connects its signals.
+        """
         super(self.__class__, self).__init__(parent)
         self.setupUi(self)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-
-        fonts = [font for font in os.listdir(os.path.join(current_dir, "assets/fonts")) if font.endswith(".ttf")]
-        fonts = [os.path.join(current_dir, "assets/fonts/", font) for font in fonts]
-
-        for font in fonts:
-            QFontDatabase.addApplicationFont(font)
-        # # load the stylesheet
-        # theme = open(os.path.join(current_dir, "ui/styles/Tron/MainWindow.qss"), 'r')
-        # self.setStyleSheet(theme.read())
 
         self.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
 
@@ -57,8 +60,10 @@ class MainWindow(Base, Form):
         self.headerContainer.mouseReleaseEvent = lambda event: UI_Handeler.mouseReleaseEvent(self, event)
 
         self.leftMenuSubContainer = self.findChild(QWidget, 'leftMenuSubContainer')
-        self.menuButton = self.findChild(QPushButton, 'menuButton')
-        self.menuButton.clicked.connect(lambda: UI_Handeler.toggleNavigationBar(self, 250, True))
+        self.dashboardButton = self.findChild(QPushButton, 'dashboardButton')
+        UI_Handeler.Hide_Navbar(self,bool_arg=True)
+
+        self.stackedWidget.currentChanged.connect(lambda: UI_Handeler.subscribe_VSS_Signals(self) if UI_Handeler.set_instance(self) else None)
 
         self.notificationContent = self.findChild(QWidget, 'notificationContent')
 
@@ -67,23 +72,22 @@ class MainWindow(Base, Form):
         minimizeButton = self.findChild(QPushButton, 'minimizeBtn')
         maximizeButton = self.findChild(QPushButton, 'maximizeBtn')
 
-        #closeButton.clicked.connect(self.close)
         # make the close button also end all threads
         closeButton.clicked.connect(lambda: [self.close(), self.stop_thread_signal.emit()])
         minimizeButton.clicked.connect(self.showMinimized)
         maximizeButton.clicked.connect(lambda: UI_Handeler.toggleMaximized(self))
 
         # Widget Navigation
-        buttons = (self.icButton, 
-                   self.hvacButton, 
-                   self.steeringCtrlButton,
-                   self.newButton, 
-                   self.settingsBtn)
+        Navigation_buttons = ( self.dashboardButton,
+                    self.icButton, 
+                    self.hvacButton, 
+                    self.steeringCtrlButton,
+                    self.settingsBtn) 
         
         NavigationButtons = QtWidgets.QButtonGroup(self)
         NavigationButtons.setExclusive(True)
 
-        for i, button in enumerate(buttons):
+        for i, button in enumerate(Navigation_buttons):
             button.setCheckable(True)
             NavigationButtons.addButton(button)
             button.clicked.connect(partial(UI_Handeler.animateSwitch, self, i))
@@ -93,12 +97,31 @@ class MainWindow(Base, Form):
         self.stop_thread_signal.connect(self.stackedWidget.widget(0).feed_kuksa.stop)
 
         self.stackedWidget.setCurrentIndex(0)
-        self.icButton.setChecked(True)
+        self.dashboardButton.setChecked(True)
+        UI_Handeler.Hide_Navbar(self,bool_arg=False)
+
+        self.Dashboard = Dashboard()
+        self.Dashboard.tileClickedSignal.connect(self.handleTileClicked)
 
         self.current_page = self.stackedWidget.currentIndex()
 
+    def handleTileClicked(self):
+        """
+        Handles the tile clicked signal from the Dashboard object.
+        Shows the navbar.
+        """
+        UI_Handeler.Hide_Navbar(self,bool_arg=False)
+
     def handleChangedPage(self, index):
-        # stop the previous thread and start the new one
+        """
+        Handles the change of pages in the stacked widget.
+        Stops the previous thread and starts the new one.
+        If the index is 0, the navbar is not hidden. Otherwise, it is hidden.
+        """
+        if index == 0:
+            UI_Handeler.Hide_Navbar(self,bool_arg=False)
+        else:
+            UI_Handeler.Hide_Navbar(self,bool_arg=True)
         try:
             self.stop_thread_signal.connect(self.stackedWidget.widget(self.current_page).feed_kuksa.stop)
             self.stop_thread_signal.emit()
@@ -115,6 +138,8 @@ class MainWindow(Base, Form):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    app.setApplicationName("AGL Demo Control Panel")
+    app.setWindowIcon(QtGui.QIcon(':/Images/Images/Automotive_Grade_Linux_logo.svg'))
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())

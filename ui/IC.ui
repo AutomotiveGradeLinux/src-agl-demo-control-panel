@@ -174,8 +174,8 @@ QLCDNumber {
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>658</width>
-           <height>638</height>
+           <width>664</width>
+           <height>652</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
@@ -389,8 +389,14 @@ QLCDNumber {
                </property>
               </widget>
              </item>
-             <item row="1" column="8">
+             <item row="1" column="8" alignment="Qt::AlignHCenter">
               <widget class="QSlider" name="fuelLevel_slider">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="font">
                 <font>
                  <kerning>true</kerning>
@@ -413,8 +419,14 @@ QLCDNumber {
                </property>
               </widget>
              </item>
-             <item row="1" column="1">
+             <item row="1" column="1" alignment="Qt::AlignHCenter">
               <widget class="QSlider" name="coolantTemp_slider">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
@@ -442,7 +454,7 @@ QLCDNumber {
                </property>
               </widget>
              </item>
-             <item row="3" column="8">
+             <item row="3" column="8" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
               <widget class="QLabel" name="label_3">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -462,7 +474,7 @@ QLCDNumber {
                 <string/>
                </property>
                <property name="pixmap">
-                <pixmap resource="../assets/res.qrc">:/icons/feather/droplet.svg</pixmap>
+                <pixmap resource="../assets/res.qrc">:/Carbon_Icons/carbon_icons/rain-drop.svg</pixmap>
                </property>
                <property name="scaledContents">
                 <bool>false</bool>
@@ -513,6 +525,12 @@ QLCDNumber {
              </item>
              <item row="3" column="3">
               <widget class="QSlider" name="Speed_slider">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>60</height>
+                </size>
+               </property>
                <property name="font">
                 <font>
                  <weight>50</weight>
@@ -567,6 +585,12 @@ QLCDNumber {
              </item>
              <item row="3" column="6">
               <widget class="QSlider" name="RPM_slider">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>60</height>
+                </size>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -588,13 +612,13 @@ QLCDNumber {
                </property>
               </spacer>
              </item>
-             <item row="3" column="1">
+             <item row="3" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
               <widget class="QLabel" name="label_2">
                <property name="text">
                 <string/>
                </property>
                <property name="pixmap">
-                <pixmap resource="../assets/res.qrc">:/icons/feather/thermometer.svg</pixmap>
+                <pixmap resource="../assets/res.qrc">:/Carbon_Icons/carbon_icons/temperature--water.svg</pixmap>
                </property>
               </widget>
              </item>
@@ -911,7 +935,7 @@ QLCDNumber {
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QFrame" name="frame">
+       <widget class="QFrame" name="header_frame">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -959,22 +983,23 @@ QLCDNumber {
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="scriptBtn">
+          <widget class="QLabel" name="label_6">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
-            <string>Script</string>
+            <string>Demo Mode</string>
            </property>
-           <property name="icon">
-            <iconset resource="../assets/res.qrc">
-             <normaloff>:/icons/feather/play-circle.svg</normaloff>:/icons/feather/play-circle.svg</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="demoToggle">
+           <property name="text">
+            <string/>
            </property>
           </widget>
          </item>
