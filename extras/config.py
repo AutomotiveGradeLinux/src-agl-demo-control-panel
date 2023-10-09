@@ -19,16 +19,16 @@ import platform
 
 python_version = f"python{'.'.join(platform.python_version_tuple()[:2])}"
 
-CA = os.path.abspath(os.path.join(os.path.dirname(__file__), "../assets/CA.pem"))
+CA = os.path.abspath(os.path.join(os.path.dirname(__file__), "../assets/cert/CA.pem"))
 
 KUKSA_CONFIG = {
-    "ip": 'localhost',
-    "port": "8090",
-    'protocol': 'ws',
+    "ip": '10.42.0.95',
+    "port": "55555",
+    'protocol': 'grpc',
     'insecure': False,
     'cacertificate': CA,
     'tls_server_name': "Server",
 }
 
-TOKEN_PATH = os.path.join(os.path.expanduser("~"), 
-                          f".local/lib/{python_version}/site-packages/kuksa_certificates/jwt/super-admin.json.token")
+WS_TOKEN = os.path.join(os.path.expanduser("~"), f".local/lib/{python_version}/site-packages/kuksa_certificates/jwt/super-admin.json.token")
+GRPC_TOKEN = os.path.abspath(os.path.join(os.path.dirname(__file__), "../assets/token/grpc/actuate-provide-all.token"))
