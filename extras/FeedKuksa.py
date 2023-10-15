@@ -14,12 +14,15 @@
     limitations under the License.
 """
 
-import time
 import logging
 from PyQt5.QtCore import QThread
+from PyQt5.QtCore import pyqtSignal
 from . import Kuksa_Instance as kuksa_instance
+import threading
 
 class FeedKuksa(QThread):
+    sending_values = pyqtSignal()
+    finished_sending_values = pyqtSignal()
     """
     A class to handle sending values to Kuksa.
 
@@ -85,20 +88,25 @@ class FeedKuksa(QThread):
         Exception
             If there is an error sending values to Kuksa.
         """
-        if self.client is not None:
-            if self.client.checkConnection():
-                try:
-                    if attribute is not None:
-                        self.client.setValue(path, str(value), attribute)
-                    else:
-                        self.client.setValue(path, str(value))
-                except Exception as e:
-                    logging.error(f"Error sending values to kuksa {e}")
-                    self.set_instance()
-            else:
-                logging.error("Kuksa client is not connected, try reconnecting")
-                self.set_instance()
-        else:
+        
+        if self.client is None:
             logging.error("Kuksa client is None, try reconnecting")
-            time.sleep(2)
-            self.set_instance()
+            return
+
+        if not self.client.checkConnection():
+            logging.error("Kuksa client is not connected, try reconnecting")
+            threading.Thread(target=self.set_instance).start()
+            return
+
+        try:
+            if attribute is not None:
+                self.sending_values.emit()
+                self.client.setValue(path, value, attribute)
+            else:
+                self.sending_values.emit()
+                self.client.setValue(path, value)
+
+            self.finished_sending_values.emit()
+        except Exception as e:
+            logging.error(f"Error sending values to kuksa {e}")
+            threading.Thread(target=self.set_instance).start()

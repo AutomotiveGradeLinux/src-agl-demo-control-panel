@@ -19,8 +19,6 @@ import kuksa_client as kuksa
 import threading
 import time
 
-from extras import config
-
 class KuksaClientSingleton:
     """
     A singleton class that provides a single instance of KuksaClientThread.
@@ -73,28 +71,11 @@ class KuksaClientSingleton:
         if KuksaClientSingleton._instance is not None:
             raise Exception("This class is a singleton!")
 
-        self.kuksa_config = config.KUKSA_CONFIG
-        self.ws_token = config.WS_TOKEN
-        self.grpc_token = config.GRPC_TOKEN
-        
-        if self.kuksa_config["protocol"] == 'ws':
-            self.token = self.ws_token
-        if self.kuksa_config["protocol"] == 'grpc':
-            self.token = self.grpc_token
-
-        try:
-            self.client = kuksa.KuksaClientThread(self.kuksa_config)
-            self.client.authorize(self.token)
-            self.client.start()
-            time.sleep(2)
-            if not self.client.checkConnection():
-                self.client = None
-        except Exception as e:
-            print(e)
+        self.client = None
 
         KuksaClientSingleton._instance = self
 
-    def reconnect(self, config):
+    def reconnect(self, config, token):
         """
         Reconnects the client with the given configuration and token.
 
@@ -107,18 +88,10 @@ class KuksaClientSingleton:
         """
         if self.client:
             self.client.stop()
-
-        if self.kuksa_config["protocol"] == 'ws':
-            self.token = self.ws_token
-            self.kuksa_config["port"] = "8090"
-        if self.kuksa_config["protocol"] == 'grpc':
-            self.token = self.grpc_token
-            self.kuksa_config["port"] = "55555"
             
-        self.client = kuksa.KuksaClientThread(self.kuksa_config)
-        self.client.authorize(self.token)
+        self.client = kuksa.KuksaClientThread(config)
+        self.client.authorize(token)
         self.client.start()
-        return self.client
 
     def get_client(self):
         """

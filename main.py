@@ -52,7 +52,7 @@ class MainWindow(Base, Form):
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 
         self.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
-
+        #self.resize(1400,840)
         self.headerContainer = self.findChild(QWidget, 'headerContainer')
         self.headerContainer.DoubleClickMaximize = lambda: UI_Handeler.toggleMaximized(self)
         self.headerContainer.mouseMoveEvent = lambda event: UI_Handeler.moveWindow(self, event)
@@ -96,7 +96,7 @@ class MainWindow(Base, Form):
         
         self.stop_thread_signal.connect(self.stackedWidget.widget(0).feed_kuksa.stop)
 
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(0)        
         self.dashboardButton.setChecked(True)
         UI_Handeler.Hide_Navbar(self,bool_arg=False)
 
@@ -104,6 +104,24 @@ class MainWindow(Base, Form):
         self.Dashboard.tileClickedSignal.connect(self.handleTileClicked)
 
         self.current_page = self.stackedWidget.currentIndex()
+
+        self.centralwidget = self.findChild(QWidget, 'centralwidget')
+        self.size_grip = QtWidgets.QSizeGrip(self)
+        self.size_grip.setFixedSize(20, 20)
+        #self.size_grip.setStyleSheet("QSizeGrip { background-color: transparent; }")
+        self.size_grip.setStyleSheet("""
+                                        QSizeGrip {
+                                            background-color: transparent;
+                                            background-image: url(:/Carbon_Icons/carbon_icons/corner.svg);
+                                            background-repeat: no-repeat;
+                                            background-position: center;
+                                            border: none;
+                                        }
+                                    """)
+        self.centralwidget.layout().addWidget(self.size_grip, 0, Qt.AlignBottom | Qt.AlignRight)
+
+    def VSS_callback(self,data):
+        pass
 
     def handleTileClicked(self):
         """
