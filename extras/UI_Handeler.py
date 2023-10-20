@@ -20,32 +20,26 @@ from PyQt5.QtCore import QPropertyAnimation
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QEasingCurve
 from PyQt5.QtWidgets import QGraphicsOpacityEffect
-from PyQt5.QtWidgets import QDesktopWidget
 import logging
 import json
 
-from . import FeedKuksa as feed_kuksa
 from . import Kuksa_Instance as kuksa_instance
 
 # Global variables
 subscribed = False
-should_execute_callback = True
 block_subscription_updates = False
 
-class UI_Handeler(MainWindow):
-    """
-    This class handles the UI of the AGL Demo Control Panel application.
-    """
-    def __init__(self):
-        self.feed_kuksa = feed_kuksa.FeedKuksa()
-        self.feed_kuksa.sending_values.connect(self.block_updates)
-        self.feed_kuksa.finished_sending_values.connect(self.unblock_updates)
 
-    def block_updates(self):
+class UI_Handeler(MainWindow):
+
+    def display_sending_message(self):
+        print("message sent")
+
+    def block_updates():
         global block_subscription_updates
         block_subscription_updates = True
 
-    def unblock_updates(self):
+    def unblock_updates():
         global block_subscription_updates
         block_subscription_updates = False
 
@@ -59,7 +53,8 @@ class UI_Handeler(MainWindow):
         height = self.BottomMenuSubContainer.height()
         heightExtended = 75 if bool_arg else 0
 
-        self.animation = QPropertyAnimation(self.BottomMenuSubContainer, b"minimumHeight")
+        self.animation = QPropertyAnimation(
+            self.BottomMenuSubContainer, b"minimumHeight")
         self.animation.setDuration(400)
         self.animation.setStartValue(height)
         self.animation.setEndValue(heightExtended)
@@ -73,7 +68,8 @@ class UI_Handeler(MainWindow):
         Args:
         - index: The index of the page to switch to.
         """
-        self.fader_widget = FaderWidget(self.stackedWidget.currentWidget(), self.stackedWidget.widget(index))
+        self.fader_widget = FaderWidget(
+            self.stackedWidget.currentWidget(), self.stackedWidget.widget(index))
         self.stackedWidget.setCurrentIndex(index)
 
     def toggleMaximized(self):
@@ -96,29 +92,27 @@ class UI_Handeler(MainWindow):
             self.move(self.pos() + event.globalPos() - self.clickPosition)
             self.clickPosition = event.globalPos()
             event.accept()
-    
+
     def mousePressEvent(self, event):
         self.clickPosition = event.globalPos()
         event.accept()
-    
+
     def mouseReleaseEvent(self, event):
         self.clickPosition = None
         event.accept()
-        
-    def set_instance(self):
-        """
-        This method sets the instance of the Kuksa client.
 
-        Returns:
-        - True if the client is connected to Kuksa, False otherwise.
-        """
+    def set_instance(self):
         self.kuksa = kuksa_instance.KuksaClientSingleton.instance()
         self.client = self.kuksa.get_client()
         if self.client is not None and self.client.checkConnection():
             return True
         else:
-            print("No connection to Kuksa")
+            logging.error("Kuksa client is not connected, try reconnecting")
             return False
+
+    def stop_client(self):
+        if self.client is not None and self.client.checkConnection():
+            self.client.stop()
 
     def subscribe_VSS_Signals(self):
         """
@@ -144,13 +138,15 @@ class UI_Handeler(MainWindow):
                     "Vehicle.Cabin.HVAC.Station.Row1.Right.FanSpeed"]
 
                 for signal in signals:
-                    self.client.subscribe(signal, lambda data: UI_Handeler.VSS_callback(self,data), 'value')
+                    self.client.subscribe(
+                        signal, lambda data: UI_Handeler.VSS_callback(self, data), 'value')
                 subscribed = True
             else:
                 subscribed = False
-                print("No connection to Kuksa")
+                logging.error(
+                    "Kuksa client is not connected, try reconnecting")
 
-    def VSS_callback(self,data):
+    def VSS_callback(self, data):
         """
         This method is the callback function for the VSS signals from Kuksa.
 
@@ -160,7 +156,7 @@ class UI_Handeler(MainWindow):
         global block_subscription_updates
         if block_subscription_updates:
             return
-        
+
         IC_Page = self.stackedWidget.widget(1)
         HVAC_Page = self.stackedWidget.widget(2)
 
@@ -219,7 +215,7 @@ class UI_Handeler(MainWindow):
 class FaderWidget(QWidget):
     def __init__(self, old_widget, new_widget):
         super().__init__(new_widget)
-        
+
         self.old_widget = old_widget
         self.new_widget = new_widget
 

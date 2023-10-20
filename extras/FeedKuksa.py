@@ -16,13 +16,12 @@
 
 import logging
 from PyQt5.QtCore import QThread
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QObject
 from . import Kuksa_Instance as kuksa_instance
+from . import UI_Handeler
 import threading
 
 class FeedKuksa(QThread):
-    sending_values = pyqtSignal()
-    finished_sending_values = pyqtSignal()
     """
     A class to handle sending values to Kuksa.
 
@@ -35,6 +34,9 @@ class FeedKuksa(QThread):
     client : kuksa_instance.KuksaClientSingleton.instance().client
         A client object to interact with the Kuksa server.
     """
+    
+    sending_values = pyqtSignal()
+    finished_sending_values = pyqtSignal()
 
     def __init__(self, parent=None):
         """
@@ -45,8 +47,11 @@ class FeedKuksa(QThread):
         parent : QObject
             The parent object of the FeedKuksa object.
         """
-        QThread.__init__(self,parent)
+        QThread.__init__(self, parent)
         self.stop_flag = False
+
+        self.sending_values.connect(UI_Handeler.UI_Handeler.block_updates)
+        self.finished_sending_values.connect(UI_Handeler.UI_Handeler.unblock_updates)
 
     def run(self):
         """
@@ -60,7 +65,7 @@ class FeedKuksa(QThread):
         Stops the thread.
         """
         self.stop_flag = True
-        
+
         logging.info("Stopping thread")
 
     def set_instance(self):
@@ -88,7 +93,7 @@ class FeedKuksa(QThread):
         Exception
             If there is an error sending values to Kuksa.
         """
-        
+
         if self.client is None:
             logging.error("Kuksa client is None, try reconnecting")
             return
@@ -102,11 +107,11 @@ class FeedKuksa(QThread):
             if attribute is not None:
                 self.sending_values.emit()
                 self.client.setValue(path, value, attribute)
+                self.finished_sending_values.emit()
             else:
                 self.sending_values.emit()
                 self.client.setValue(path, value)
-
-            self.finished_sending_values.emit()
+                self.finished_sending_values.emit()
         except Exception as e:
             logging.error(f"Error sending values to kuksa {e}")
             threading.Thread(target=self.set_instance).start()
