@@ -73,21 +73,12 @@ class UI_Handeler(MainWindow):
         self.stackedWidget.setCurrentIndex(index)
 
     def toggleMaximized(self):
-        """
-        This method toggles the maximized state of the window.
-        """
         if self.isMaximized():
             self.showNormal()
         else:
             self.showMaximized()
 
     def moveWindow(self, event):
-        """
-        This method moves the window by dragging the header.
-
-        Args:
-        - event: The event object containing information about the mouse event.
-        """
         if event.buttons() == QtCore.Qt.LeftButton:
             self.move(self.pos() + event.globalPos() - self.clickPosition)
             self.clickPosition = event.globalPos()

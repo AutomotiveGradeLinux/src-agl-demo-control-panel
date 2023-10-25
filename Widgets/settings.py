@@ -15,6 +15,7 @@
 
 from extras import config
 import extras.Kuksa_Instance as kuksa_instance
+
 import os
 import sys
 import time
@@ -98,6 +99,7 @@ class settings(Base, Form):
         self.reconnectBtn = self.findChild(QPushButton, "reconnectBtn")
         self.startClientBtn = self.findChild(QPushButton, "startClientBtn")
         self.startClientBtn.setCheckable(True)
+        self.startClientBtn.setStyleSheet("border: 1px solid green;")
 
         self.startClientBtn.clicked.connect(self.start_stop_client)
         self.reconnectBtn.clicked.connect(self.reconnectClient)
@@ -123,24 +125,12 @@ class settings(Base, Form):
 
     def start_stop_client(self):
         if self.startClientBtn.isChecked():
-            # turn button red and change icon to stop from resources
             self.set_instance()
-            if self.client is not None:
-                self.startClientBtn.setStyleSheet("border: 1px solid red;")
-                self.startClientBtn.setIcon(QtGui.QIcon(
-                    ":/Carbon_Icons/carbon_icons/stop.svg"))
-                self.startClientBtn.setText("Stop Client")
-            else:
-                self.startClientBtn.setChecked(False)
-        else:
-            # turn button green and change icon to start from resources
-            if self.client is not None:
-                self.client.stop()
+        if self.client is not None:
+            self.client.stop()
 
-            self.startClientBtn.setStyleSheet("border: 1px solid green;")
-            self.startClientBtn.setIcon(QtGui.QIcon(
-                ":/Carbon_Icons/carbon_icons/play.svg"))
-            self.startClientBtn.setText("Start Client")
+        self.refreshThread = RefreshThread(self)
+        self.refreshThread.start()
 
     def toggleSSL(self):
         """
@@ -185,14 +175,6 @@ class settings(Base, Form):
             self.kuksa.reconnect(new_config, self.kuksa_token)
             self.client = self.kuksa.get_client()
 
-        time.sleep(2)
-
-        if (self.client is None):
-            self.connectionStatus.setText('Not Connected')
-            self.connectionLogo.setStyleSheet("background-color: red")
-
-        self.refreshStatus()
-
     def refreshStatus(self):
         """
         Refreshes the connection status.
@@ -203,6 +185,12 @@ class settings(Base, Form):
                 self.connectionLogo.setStyleSheet("background-color: red")
                 self.connectionLogo.setPixmap(QtGui.QPixmap(
                     ":/Carbon_Icons/carbon_icons/connection-signal--off.svg"))
+
+                self.startClientBtn.setStyleSheet("border: 1px solid green;")
+                self.startClientBtn.setIcon(QtGui.QIcon(
+                    ":/Carbon_Icons/carbon_icons/play.svg"))
+                self.startClientBtn.setText("Start Client")
+                self.startClientBtn.setChecked(False)
                 return None
 
             if (self.client.checkConnection() == True):
@@ -210,6 +198,12 @@ class settings(Base, Form):
                 self.connectionLogo.setStyleSheet("background-color: green")
                 self.connectionLogo.setPixmap(QtGui.QPixmap(
                     ":/Carbon_Icons/carbon_icons/connection-signal.svg"))
+
+                self.startClientBtn.setStyleSheet("border: 1px solid red;")
+                self.startClientBtn.setIcon(QtGui.QIcon(
+                    ":/Carbon_Icons/carbon_icons/stop.svg"))
+                self.startClientBtn.setText("Stop Client")
+                self.startClientBtn.setChecked(True)
                 self.client.start()
                 return True
 
@@ -219,6 +213,12 @@ class settings(Base, Form):
                 self.connectionLogo.setStyleSheet("background-color: yellow")
                 self.connectionLogo.setPixmap(QtGui.QPixmap(
                     ":/Carbon_Icons/carbon_icons/connection-signal--off.svg"))
+
+                self.startClientBtn.setStyleSheet("border: 1px solid green;")
+                self.startClientBtn.setIcon(QtGui.QIcon(
+                    ":/Carbon_Icons/carbon_icons/play.svg"))
+                self.startClientBtn.setText("Start Client")
+                self.startClientBtn.setChecked(False)
                 return False
         except:
             pass
@@ -233,7 +233,6 @@ class settings(Base, Form):
                 self.client.stop()
                 self.client = self.kuksa.reconnect(config, self.kuksa_token)
                 self.client.start()
-                self.refreshStatus()
 
                 self.refreshThread = RefreshThread(self)
                 self.refreshThread.start()
@@ -241,6 +240,9 @@ class settings(Base, Form):
             except Exception as e:
                 logging.error(e)
         self.set_instance()
+
+        self.refreshThread = RefreshThread(self)
+        self.refreshThread.start()
 
     def make_new_config(self):
         """
@@ -254,7 +256,7 @@ class settings(Base, Form):
                     widget.setStyleSheet(
                         "border: 1px solid #4BD7D6 ; /* light blue */")
                     if key:
-                        self.new_config[key] = text
+                        new_config[key] = text
                     else:
                         self.kuksa_token = text
                 else:
@@ -270,6 +272,9 @@ class settings(Base, Form):
         ) if self.Protocol_toggle.isChecked() else None
         validate_and_set_style(self, self.CA_File, "cacertificate")
         validate_and_set_style(self, self.Auth_Token)
+
+        config.save_session_config(
+            new_config, self.kuksa_token, self.CA_File.text())
 
         return new_config
 
