@@ -22,7 +22,7 @@ apt-get install --yes \
  python3-pyqt5 \
  python3-qtpy \
  pyqt5-dev-tools \
- python3-pyqt5.qtsvgqq
+ python3-pyqt5.qtsvg
 
 # Set bash as default shell
 echo "dash dash/sh boolean false" | debconf-set-selections - && dpkg-reconfigure dash
