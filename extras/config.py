@@ -52,20 +52,16 @@ GRPC_TOKEN_PATHS = check_paths(
 )
 
 config = ConfigParser()
-config_path = next(
-    (path for path, exists in CONFIG_PATHS.items() if exists), None)
+config_path = next((path for path, exists in CONFIG_PATHS.items() if exists), None)
 if config_path:
     config.read(config_path)
 
 CA_PATH = next((path for path, exists in CA_PATHS.items() if exists), None)
-WS_TOKEN = next(
-    (path for path, exists in WS_TOKEN_PATHS.items() if exists), None)
-GRPC_TOKEN = next(
-    (path for path, exists in GRPC_TOKEN_PATHS.items() if exists), None)
+WS_TOKEN = next((path for path, exists in WS_TOKEN_PATHS.items() if exists), None)
+GRPC_TOKEN = next((path for path, exists in GRPC_TOKEN_PATHS.items() if exists), None)
 
 KUKSA_CONFIG = {}
 KUKSA_TOKEN = None
-
 
 def select_config(preferred_config):
     """
@@ -131,8 +127,6 @@ def save_session_config(session_config, auth_token, CA_File=None):
     """
     save values to config.ini under [user-session]
     """
-    if not config.has_section('user-session'):
-        config.add_section('user-session')
 
     config.set('user-session', 'ip', str(session_config['ip']))
     config.set('user-session', 'port', str(session_config['port']))
@@ -140,15 +134,33 @@ def save_session_config(session_config, auth_token, CA_File=None):
     config.set('user-session', 'insecure', str(session_config['insecure']))
     config.set('user-session', 'tls_server_name',
                str(session_config['tls_server_name']))
-    if auth_token in WS_TOKEN_PATHS or auth_token in GRPC_TOKEN_PATHS:
+    if auth_token in WS_TOKEN_PATHS or auth_token in GRPC_TOKEN_PATHS or auth_token == 'default':
         config.set('user-session', 'token', 'default')
     else:
         config.set('user-session', 'token', str(auth_token))
 
-    if CA_File in CA_PATHS:
+    if CA_File in CA_PATHS or CA_File == 'default':
         config.set('user-session', 'cacert', 'default')
     else:
         config.set('user-session', 'cacert', str(CA_File))
 
     with open(config_path, 'w') as configfile:
         config.write(configfile)
+
+
+def fullscreen_mode():
+    return config.getboolean('default', 'fullscreen-mode')
+
+
+if not config.has_section('user-session'):
+    config.add_section('user-session')
+    temp = {
+        'ip': "",
+        'port': "",
+        'protocol': "",
+        'insecure': "",
+        'cacert': "",
+        'token': "",
+        'tls_server_name': "",
+    }
+    save_session_config(temp, 'default', 'default')
