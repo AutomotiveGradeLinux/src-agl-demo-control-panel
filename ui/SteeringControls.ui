@@ -139,9 +139,6 @@ QPushButton:checked {
               <bold>true</bold>
              </font>
             </property>
-            <property name="accessibleDescription">
-             <string/>
-            </property>
             <property name="text">
              <string>CRUISE LIMIT</string>
             </property>
