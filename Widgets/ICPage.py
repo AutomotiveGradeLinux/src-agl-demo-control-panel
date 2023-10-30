@@ -68,10 +68,8 @@ class ICWidget(Base, Form):
         self.setupUi(self)
 
         self.IC = IC_Paths()
-        # self.vehicle_simulator = VehicleSimulator(self)
 
         self.feed_kuksa = FeedKuksa()
-        self.feed_kuksa.start()
         self.vehicle_simulator = VehicleSimulator()
 
         header_frame = self.findChild(QWidget, "header_frame")
@@ -380,7 +378,7 @@ class VehicleSimulator(QObject):
         self.engine_speed = self.DEFAULT_IDLE_RPM
         self.running = False
         self.lock = threading.Lock()
-        self.thread = threading.Thread(target=self.run, daemon=True)
+        self.thread = threading.Thread(target=self.run)
 
     def start(self):
         if not self.running:

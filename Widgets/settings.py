@@ -12,7 +12,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-
 from extras import config
 import extras.Kuksa_Instance as kuksa_instance
 
@@ -40,8 +39,9 @@ Form, Base = uic.loadUiType(os.path.join(
 
 # ========================================
 
+# Global Variables
 Steering_Signal_Type = "Kuksa"
-
+Protocol = None
 
 def create_animated_toggle():
     return AnimatedToggle(
@@ -71,6 +71,7 @@ class settings(Base, Form):
         """
         super(self.__class__, self).__init__(parent)
         self.setupUi(self)
+        self.client = None
 
         self.SSL_toggle = create_animated_toggle()
         self.Protocol_toggle = create_animated_toggle()
@@ -101,6 +102,10 @@ class settings(Base, Form):
         self.startClientBtn.setCheckable(True)
         self.startClientBtn.setStyleSheet("border: 1px solid green;")
 
+        self.Hide_IC = self.findChild(QPushButton, "Hide_IC")
+        self.Hide_HVAC = self.findChild(QPushButton, "Hide_HVAC")
+        self.Hide_HUD = self.findChild(QPushButton, "Hide_HUD")
+
         self.startClientBtn.clicked.connect(self.start_stop_client)
         self.reconnectBtn.clicked.connect(self.reconnectClient)
         self.SSL_toggle.clicked.connect(self.toggleSSL)
@@ -126,7 +131,7 @@ class settings(Base, Form):
     def start_stop_client(self):
         if self.startClientBtn.isChecked():
             self.set_instance()
-        if self.client is not None:
+        elif self.client is not None:
             self.client.stop()
 
         self.refreshThread = RefreshThread(self)
@@ -158,9 +163,12 @@ class settings(Base, Form):
             Steering_Signal_Type = "Kuksa"
 
     def get_protocol(self):
+        global Protocol
         if (not self.Protocol_toggle.isChecked()):
+            Protocol = "ws"
             return "ws"
         else:
+            Protocol = "grpc"
             return "grpc"
 
     def set_instance(self):
@@ -229,20 +237,20 @@ class settings(Base, Form):
         """
         if (self.client is not None):
             try:
-                config = self.make_new_config()
                 self.client.stop()
-                self.client = self.kuksa.reconnect(config, self.kuksa_token)
-                self.client.start()
+                self.client = self.kuksa.reconnect(
+                    self.make_new_config(), self.kuksa_token)
 
                 self.refreshThread = RefreshThread(self)
                 self.refreshThread.start()
 
             except Exception as e:
                 logging.error(e)
-        self.set_instance()
+        else:
+            self.set_instance()
 
-        self.refreshThread = RefreshThread(self)
-        self.refreshThread.start()
+            self.refreshThread = RefreshThread(self)
+            self.refreshThread.start()
 
     def make_new_config(self):
         """
