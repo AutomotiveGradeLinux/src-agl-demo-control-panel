@@ -34,10 +34,10 @@ Form, Base = uic.loadUiType(os.path.join(current_dir, "../ui/HVAC.ui"))
 
 class HVAC_Paths():
     def __init__(self):
-        self.leftTemp = "Vehicle.Cabin.HVAC.Station.Row1.Left.Temperature"
-        self.leftFanSpeed = "Vehicle.Cabin.HVAC.Station.Row1.Left.FanSpeed"
-        self.rightTemp = "Vehicle.Cabin.HVAC.Station.Row1.Right.Temperature"
-        self.rightFanSpeed = "Vehicle.Cabin.HVAC.Station.Row1.Right.FanSpeed"
+        self.leftTemp = "Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature"
+        self.leftFanSpeed = "Vehicle.Cabin.HVAC.Station.Row1.Driver.FanSpeed"
+        self.rightTemp = "Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature"
+        self.rightFanSpeed = "Vehicle.Cabin.HVAC.Station.Row1.Passenger.FanSpeed"
 
         # temperatureList contains values from 32 to 16
         self.temperatureList = [str(i) + "°C" for i in range(32, 15, -1)]

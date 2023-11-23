@@ -53,13 +53,13 @@ class GrpcSubscriptionThread(QThread):
             SubscribeEntry('Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling', View.FIELDS, (Field.VALUE,)),
             SubscribeEntry('Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling', View.FIELDS, (Field.VALUE,)),
             SubscribeEntry('Vehicle.Body.Lights.Hazard.IsSignaling', View.FIELDS, (Field.VALUE,)),
-            SubscribeEntry('Vehicle.Powertrain.FuelSystem.Level', View.FIELDS, (Field.VALUE,)),
+            SubscribeEntry('Vehicle.Powertrain.FuelSystem.RelativeLevel', View.FIELDS, (Field.VALUE,)),
             SubscribeEntry('Vehicle.Powertrain.CombustionEngine.ECT', View.FIELDS, (Field.VALUE,)),
             SubscribeEntry('Vehicle.Powertrain.Transmission.SelectedGear', View.FIELDS, (Field.VALUE,)),
-            SubscribeEntry('Vehicle.Cabin.HVAC.Station.Row1.Left.Temperature', View.FIELDS, (Field.VALUE,)),
-            SubscribeEntry('Vehicle.Cabin.HVAC.Station.Row1.Left.FanSpeed', View.FIELDS, (Field.VALUE,)),
-            SubscribeEntry('Vehicle.Cabin.HVAC.Station.Row1.Right.Temperature', View.FIELDS, (Field.VALUE,)),
-            SubscribeEntry('Vehicle.Cabin.HVAC.Station.Row1.Right.FanSpeed', View.FIELDS, (Field.VALUE,)),
+            SubscribeEntry('Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature', View.FIELDS, (Field.VALUE,)),
+            SubscribeEntry('Vehicle.Cabin.HVAC.Station.Row1.Driver.FanSpeed', View.FIELDS, (Field.VALUE,)),
+            SubscribeEntry('Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature', View.FIELDS, (Field.VALUE,)),
+            SubscribeEntry('Vehicle.Cabin.HVAC.Station.Row1.Passenger.FanSpeed', View.FIELDS, (Field.VALUE,)),
         ]
 
         async def grpc_subscription(client):
@@ -179,13 +179,13 @@ class UI_Handeler(MainWindow):
                     "Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling",
                     "Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling",
                     "Vehicle.Body.Lights.Hazard.IsSignaling",
-                    "Vehicle.Powertrain.FuelSystem.Level",
+                    "Vehicle.Powertrain.FuelSystem.RelativeLevel",
                     "Vehicle.Powertrain.CombustionEngine.ECT",
                     "Vehicle.Powertrain.Transmission.SelectedGear",
-                    "Vehicle.Cabin.HVAC.Station.Row1.Left.Temperature",
-                    "Vehicle.Cabin.HVAC.Station.Row1.Left.FanSpeed",
-                    "Vehicle.Cabin.HVAC.Station.Row1.Right.Temperature",
-                    "Vehicle.Cabin.HVAC.Station.Row1.Right.FanSpeed"]
+                    "Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature",
+                    "Vehicle.Cabin.HVAC.Station.Row1.Driver.FanSpeed",
+                    "Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature",
+                    "Vehicle.Cabin.HVAC.Station.Row1.Passenger.FanSpeed"]
 
                 if settings.Protocol == "ws":
                     for signal in signals:
@@ -247,7 +247,7 @@ class UI_Handeler(MainWindow):
             IC_Page.hazardBtn.setChecked(bool(value))
             IC_Page.hazardBtn.blockSignals(False)
 
-        if path == "Vehicle.Powertrain.FuelSystem.Level":
+        if path == "Vehicle.Powertrain.FuelSystem.RelativeLevel":
             IC_Page.fuelLevel_slider.blockSignals(True)
             IC_Page.fuelLevel_slider.setValue(int(float(value)))
             IC_Page.fuelLevel_slider.blockSignals(False)
@@ -275,7 +275,7 @@ class UI_Handeler(MainWindow):
                 IC_Page.neutralBtn.setChecked(True)
                 IC_Page.neutralBtn.blockSignals(False)
 
-        if path == "Vehicle.Cabin.HVAC.Station.Row1.Left.Temperature":
+        if path == "Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature":
             HVAC_Page.leftTempList.blockSignals(True)
             item = HVAC_Page.leftTempList.findItems(
                 str(int(float(value))) + "°C", QtCore.Qt.MatchExactly)[0]
@@ -283,12 +283,12 @@ class UI_Handeler(MainWindow):
             HVAC_Page.leftTempList.scrollToItem(item, 1)
             HVAC_Page.leftTempList.blockSignals(False)
 
-        if path == "Vehicle.Cabin.HVAC.Station.Row1.Left.FanSpeed":
+        if path == "Vehicle.Cabin.HVAC.Station.Row1.Driver.FanSpeed":
             HVAC_Page.leftFanSpeed_slider.blockSignals(True)
             HVAC_Page.leftFanSpeed_slider.setValue(int(float(value)))
             HVAC_Page.leftFanSpeed_slider.blockSignals(False)
 
-        if path == "Vehicle.Cabin.HVAC.Station.Row1.Right.Temperature":
+        if path == "Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature":
             HVAC_Page.rightTempList.blockSignals(True)
             item = HVAC_Page.leftTempList.findItems(
                 str(int(float(value))) + "°C", QtCore.Qt.MatchExactly)[0]
@@ -296,7 +296,7 @@ class UI_Handeler(MainWindow):
             HVAC_Page.rightTempList.scrollToItem(item, 1)
             HVAC_Page.rightTempList.blockSignals(False)
 
-        if path == "Vehicle.Cabin.HVAC.Station.Row1.Right.FanSpeed":
+        if path == "Vehicle.Cabin.HVAC.Station.Row1.Passenger.FanSpeed":
             HVAC_Page.rightFanSpeed_slider.blockSignals(True)
             HVAC_Page.rightFanSpeed_slider.setValue(int(float(value)))
             HVAC_Page.rightFanSpeed_slider.blockSignals(False)
