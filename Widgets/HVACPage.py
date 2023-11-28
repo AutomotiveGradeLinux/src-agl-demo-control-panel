@@ -127,7 +127,7 @@ class HVACWidget(Base, Form):
         item = list_widget.currentItem()
         if item is not None:
             list_widget.scrollToItem(item, 1)
-            self.feed_kuksa.send_values(path, item.text()[:-2])
+            self.feed_kuksa.send_values(path, item.text()[:-2], "targetValue")
             print(item.text())
 
     def leftFanSpeed_sliderChanged(self):
@@ -137,7 +137,7 @@ class HVACWidget(Base, Form):
         """
 
         value = self.leftFanSpeed_slider.value()
-        self.feed_kuksa.send_values(self.HVAC.leftFanSpeed, str(value))
+        self.feed_kuksa.send_values(self.HVAC.leftFanSpeed, str(value), "targetValue")
         print(value)
 
     def rightFanSpeed_sliderChanged(self):
@@ -147,7 +147,7 @@ class HVACWidget(Base, Form):
         """
 
         value = self.rightFanSpeed_slider.value()
-        self.feed_kuksa.send_values(self.HVAC.rightFanSpeed, str(value))
+        self.feed_kuksa.send_values(self.HVAC.rightFanSpeed, str(value), "targetValue")
         print(value)
 
 
