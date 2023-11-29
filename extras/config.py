@@ -34,19 +34,18 @@ CONFIG_PATHS = check_paths(
 
 CA_PATHS = check_paths(
     "/etc/kuksa-val/CA.pem",
-    f"/usr/lib/{python_version}/site-packages/kuksa_certificates/CA.pem",
+    f"/usr/lib/{python_version}/site-packages/kuksa_client/kuksa_server_certificates/CA.pem",
     os.path.abspath(os.path.join(os.path.dirname(
         __file__), "../assets/cert/CA.pem"))
 )
 
 WS_TOKEN_PATHS = check_paths(
-    f"/usr/lib/{python_version}/site-packages/kuksa_certificates/jwt/super-admin.json.token",
+    f"/usr/lib/{python_version}/site-packages/kuksa_client/kuksa_server_certificates/jwt/super-admin.json.token",
     os.path.join(os.path.expanduser(
-        "~"), f".local/lib/{python_version}/site-packages/kuksa_certificates/jwt/super-admin.json.token")
+        "~"), f".local/lib/{python_version}/site-packages/kuksa_client/kuksa_server_certificates/jwt/super-admin.json.token")
 )
 
 GRPC_TOKEN_PATHS = check_paths(
-    f"/usr/lib/{python_version}/site-packages/kuksa_certificates/jwt/super-admin.json.token",
     os.path.abspath(os.path.join(os.path.dirname(__file__),
                     "../assets/token/grpc/actuate-provide-all.token"))
 )
