@@ -82,7 +82,7 @@ def select_config(preferred_config):
         KUKSA_CONFIG['ip'] = config[preferred_config]['ip']
         KUKSA_CONFIG['port'] = config[preferred_config]['port']
         KUKSA_CONFIG['protocol'] = config[preferred_config]['protocol']
-        KUKSA_CONFIG['insecure'] = False if config[preferred_config]['insecure'] == 'false' else True
+        KUKSA_CONFIG['insecure'] = False if config[preferred_config]['insecure'] == 'False' else True
 
         if config.has_option(preferred_config, 'cacert'):
             KUKSA_CONFIG['cacertificate'] = config[preferred_config]['cacert'] if os.path.exists(
