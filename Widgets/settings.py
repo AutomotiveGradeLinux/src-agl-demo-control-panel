@@ -47,6 +47,7 @@ def create_animated_toggle():
     return AnimatedToggle(
         checked_color="#4BD7D6",
         pulse_checked_color="#00ffff",
+        pulse_unchecked_color= "#4BD7D6",
     )
 
 
@@ -153,12 +154,12 @@ class settings(Base, Form):
             # check if can0 is available
             try:
                 can_bus = can.interface.Bus(
-                    channel='can0', bustype='socketcan_native')
+                    channel='can0', bustype='socketcan')
                 can_bus.shutdown()
                 Steering_Signal_Type = "CAN"
-            except:
+            except OSError as e:
                 self.CAN_Kuksa_toggle.setChecked(False)
-                logging.error("CAN Bus not available")
+                logging.error(f"CAN0 is not available{e}")
         else:
             Steering_Signal_Type = "Kuksa"
 
