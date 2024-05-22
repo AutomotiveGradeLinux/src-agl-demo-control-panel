@@ -1,16 +1,7 @@
-#   Copyright 2023 Suchinton Chakravarty
+# Copyright (C) 2023 Suchinton Chakravarty
+# Copyright (C) 2024 Konsulko Group
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
-#
-#       http://www.apache.org/licenses/LICENSE-2.0
-#
-#   Unless required by applicable law or agreed to in writing, software
-#   distributed under the License is distributed on an "AS IS" BASIS,
-#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#   See the License for the specific language governing permissions and
-#   limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from extras import config
 import extras.Kuksa_Instance as kuksa_instance
@@ -54,7 +45,6 @@ def create_animated_toggle():
 class settings(Base, Form):
     """
     A class representing the settings widget of the AGL Demo Control Panel.
-
     Attributes:
     - SSL_toggle: An AnimatedToggle object representing the SSL toggle button.
     - CAN_Kuksa_toggle: An AnimatedToggle object representing the CAN/Kuksa toggle button.
@@ -76,21 +66,9 @@ class settings(Base, Form):
 
         self.SSL_toggle = create_animated_toggle()
         self.Protocol_toggle = create_animated_toggle()
-        self.CAN_Kuksa_toggle = create_animated_toggle()
 
         self.connectionStatus = self.findChild(QLabel, "connectionStatus")
         self.connectionLogo = self.findChild(QLabel, "connectionLogo")
-
-        list_of_configs = config.get_list_configs()
-        default_config_name = config.get_default_config()
-
-        self.List_Configs_ComboBox = self.findChild(
-            QComboBox, "List_Configs_ComboBox")
-        self.List_Configs_ComboBox.setItemDelegate(QStyledItemDelegate())
-        self.List_Configs_ComboBox.addItems(list_of_configs)
-        self.List_Configs_ComboBox.setCurrentText(default_config_name)
-        self.List_Configs_ComboBox.currentTextChanged.connect(
-            lambda: self.set_settings(self.List_Configs_ComboBox.currentText()))
 
         self.IPAddrInput = self.findChild(QLineEdit, "IPAddrInput")
         self.PortInput = self.findChild(QLineEdit, "PortInput")
@@ -110,7 +88,6 @@ class settings(Base, Form):
         self.startClientBtn.clicked.connect(self.start_stop_client)
         self.reconnectBtn.clicked.connect(self.reconnectClient)
         self.SSL_toggle.clicked.connect(self.toggleSSL)
-        self.CAN_Kuksa_toggle.clicked.connect(self.toggle_CAN_Kuksa)
 
         Frame_GS = self.findChild(QWidget, "frame_general_settings")
         Frame_PS = self.findChild(QWidget, "frame_page_settings")
@@ -120,14 +97,11 @@ class settings(Base, Form):
         GS_layout.replaceWidget(self.place_holder_toggle_1, self.SSL_toggle)
         GS_layout.replaceWidget(
             self.place_holder_toggle_2, self.Protocol_toggle)
-        PS_layout.replaceWidget(
-            self.place_holder_toggle_3, self.CAN_Kuksa_toggle)
 
         self.place_holder_toggle_1.deleteLater()
         self.place_holder_toggle_2.deleteLater()
-        self.place_holder_toggle_3.deleteLater()
 
-        self.set_settings(default_config_name)
+        self.init_settings()
 
     def start_stop_client(self):
         if self.startClientBtn.isChecked():
@@ -282,19 +256,17 @@ class settings(Base, Form):
         validate_and_set_style(self, self.CA_File, "cacertificate")
         validate_and_set_style(self, self.Auth_Token)
 
-        config.save_session_config(
-            new_config, self.kuksa_token, self.CA_File.text())
+        config.save_config(new_config, self.kuksa_token, self.CA_File.text())
 
         return new_config
 
-    def set_settings(self, config_name):
+    def init_settings(self):
         """
         Reloads the parameters of settings widget.
         """
-        new_config = config.select_config(config_name)
-        self.kuksa_config_name = new_config[0]
-        self.kuksa_config = new_config[1]
-        self.kuksa_token = new_config[2]
+        new_config = config.load_config()
+        self.kuksa_config = new_config[0]
+        self.kuksa_token = new_config[1]
 
         self.IPAddrInput.setText(self.kuksa_config["ip"])
         self.PortInput.setText(self.kuksa_config["port"])
