@@ -62,57 +62,46 @@ GRPC_TOKEN = next((path for path, exists in GRPC_TOKEN_PATHS.items() if exists),
 KUKSA_CONFIG = {}
 KUKSA_TOKEN = None
 
-def select_config(preferred_config):
+def load_config():
     """
-    Selects a configuration from the config.ini file based on the preferred_config parameter.
+    Initializes configuration from the config.ini file.
 
     Args:
-        preferred_config (str): The name of the configuration section to select.
 
     Returns:
-        Tuple[str, Dict[str, Union[str, bool]], str]: A tuple containing the name of the selected configuration section,
-        a dictionary containing the configuration options for the selected section, and the token to use for the selected
-        protocol.
+        Tuple[str, Dict[Union[str, bool]], str]: A tuple containing a dictionary containing
+        the configuration option and the token to use for the selected protocol.
     """
     global KUKSA_CONFIG, KUKSA_TOKEN
     KUKSA_CONFIG.clear()
 
-    if config.has_section(preferred_config):
-        KUKSA_CONFIG['ip'] = config[preferred_config]['ip']
-        KUKSA_CONFIG['port'] = config[preferred_config]['port']
-        KUKSA_CONFIG['protocol'] = config[preferred_config]['protocol']
-        KUKSA_CONFIG['insecure'] = False if config[preferred_config]['insecure'] == 'False' else True
+    if config.has_section('vss-server'):
+        KUKSA_CONFIG['ip'] = config['vss-server']['ip']
+        KUKSA_CONFIG['port'] = config['vss-server']['port']
+        KUKSA_CONFIG['protocol'] = config['vss-server']['protocol']
+        KUKSA_CONFIG['insecure'] = False if config['vss-server']['insecure'] == 'False' else True
 
-        if config.has_option(preferred_config, 'cacert'):
-            KUKSA_CONFIG['cacertificate'] = config[preferred_config]['cacert'] if os.path.exists(
-                config[preferred_config]['cacert']) else CA_PATH
+        if config.has_option('vss-server', 'cacert'):
+            KUKSA_CONFIG['cacertificate'] = config['vss-server']['cacert'] if os.path.exists(
+                config['vss-server']['cacert']) else CA_PATH
         else:
             KUKSA_CONFIG['cacertificate'] = None
 
-        KUKSA_CONFIG['tls_server_name'] = config[preferred_config]['tls_server_name']
+        KUKSA_CONFIG['tls_server_name'] = config['vss-server']['tls_server_name']
 
-        if config.has_option(preferred_config, 'token'):
-            if config[preferred_config]['token'] == 'default':
+        if config.has_option('vss-server', 'token'):
+            if config['vss-server']['token'] == 'default':
                 KUKSA_TOKEN = get_default_token(KUKSA_CONFIG['protocol'])
-            elif os.path.exists(config[preferred_config]['token']):
-                KUKSA_TOKEN = config[preferred_config]['token']
+            elif os.path.exists(config['vss-server']['token']):
+                KUKSA_TOKEN = config['vss-server']['token']
         else:
             ValueError(
-                f"Token file {config[preferred_config]['token']} not found")
+                f"Token file {config['vss-server']['token']} not found")
     else:
         raise ValueError(
-            f"Config section {preferred_config} not found in config.ini")
+            f"Config section {'vss-server'} not found in config.ini")
 
-    return preferred_config, KUKSA_CONFIG, KUKSA_TOKEN
-
-
-def get_list_configs():
-    return config.sections()[1:]
-
-
-def get_default_config():
-    defaultConfigName = config.get('default', 'preferred-config')
-    return defaultConfigName
+    return KUKSA_CONFIG, KUKSA_TOKEN
 
 
 def get_default_token(protocol):
@@ -122,44 +111,50 @@ def get_default_token(protocol):
         return WS_TOKEN
 
 
-def save_session_config(session_config, auth_token, CA_File=None):
+def save_config(new_config, auth_token, CA_File=None):
     """
-    save values to config.ini under [user-session]
+    save values to config.ini under [vss-server]
     """
 
-    config.set('user-session', 'ip', str(session_config['ip']))
-    config.set('user-session', 'port', str(session_config['port']))
-    config.set('user-session', 'protocol', str(session_config['protocol']))
-    config.set('user-session', 'insecure', str(session_config['insecure']))
-    config.set('user-session', 'tls_server_name',
-               str(session_config['tls_server_name']))
+    config.set('vss-server', 'ip', str(new_config['ip']))
+    config.set('vss-server', 'port', str(new_config['port']))
+    config.set('vss-server', 'protocol', str(new_config['protocol']))
+    config.set('vss-server', 'insecure', str(new_config['insecure']))
+    config.set('vss-server', 'tls_server_name',
+               str(new_config['tls_server_name']))
     if auth_token in WS_TOKEN_PATHS or auth_token in GRPC_TOKEN_PATHS or auth_token == 'default':
-        config.set('user-session', 'token', 'default')
+        config.set('vss-server', 'token', 'default')
     else:
-        config.set('user-session', 'token', str(auth_token))
+        config.set('vss-server', 'token', str(auth_token))
 
     if CA_File in CA_PATHS or CA_File == 'default':
-        config.set('user-session', 'cacert', 'default')
+        config.set('vss-server', 'cacert', 'default')
     else:
-        config.set('user-session', 'cacert', str(CA_File))
+        config.set('vss-server', 'cacert', str(CA_File))
 
     with open(config_path, 'w') as configfile:
         config.write(configfile)
 
 
 def fullscreen_mode():
-    return config.getboolean('default', 'fullscreen-mode')
+    return config.getboolean('default', 'fullscreen-mode', fallback=False)
+
+def hvac_enabled():
+    return config.getboolean('default', 'hvac-enabled', fallback=True)
+
+def steering_wheel_enabled():
+    return config.getboolean('default', 'steering-wheel-enabled', fallback=True)
 
 
-if not config.has_section('user-session'):
-    config.add_section('user-session')
+if not config.has_section('vss-server'):
+    config.add_section('vss-server')
     temp = {
-        'ip': "",
-        'port': "",
-        'protocol': "",
+        'ip': "localhost",
+        'port': "55555",
+        'protocol': "grpc",
         'insecure': "",
         'cacert': "",
         'token': "",
         'tls_server_name': "",
     }
-    save_session_config(temp, 'default', 'default')
+    save_config(temp, 'default', 'default')
