@@ -1,18 +1,7 @@
-"""
-    Copyright 2023 Suchinton Chakravarty
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at 
-
-        http://www.apache.org/licenses/LICENSE-2.0  
-        
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
+# Copyright (C) 2023 Suchinton Chakravarty
+# Copyright (C) 2024 Konsulko Group
+#
+# SPDX-License-Identifier: Apache-2.0
 
 import logging
 from PyQt5.QtCore import QThread
@@ -20,7 +9,7 @@ from PyQt5.QtCore import pyqtSignal
 from . import Kuksa_Instance as kuksa_instance
 import threading
 
-class FeedKuksa(QThread):
+class KuksaClient(QThread):
     """
     A class to handle sending values to Kuksa.
 
@@ -48,6 +37,8 @@ class FeedKuksa(QThread):
         """
         QThread.__init__(self, parent)
         self.stop_flag = False
+        self.kuksa = None
+        self.client = None
 
     def run(self):
         """
@@ -71,31 +62,31 @@ class FeedKuksa(QThread):
         self.kuksa = kuksa_instance.KuksaClientSingleton.instance()
         self.client = self.kuksa.get_client()
 
-    def send_values(self, path=None, value=None, attribute=None):
+    def set(self, path=None, value=None, attribute=None):
         """
-        Sends values to Kuksa.
+        Sets VSS value.
 
         Parameters:
         -----------
         path : str
-            The path to the value in Kuksa.
+            The VSS signal path.
         value : str
-            The value to be sent to Kuksa.
+            The value to be set.
         attribute : str
-            The attribute of the value in Kuksa.
+            The value attribute ("value" or "targetValue" (for actuators)).
 
         Raises:
         -------
         Exception
-            If there is an error sending values to Kuksa.
+            If there is an error setting the value.
         """
         
         if self.client is None:
-            logging.error("Kuksa client is None, try reconnecting")
+            #logging.error("Kuksa client is None, try reconnecting")
             return
 
         if not self.client.checkConnection():
-            logging.error("Kuksa client is not connected, try reconnecting")
+            logging.error("Client is not connected, try reconnecting")
             threading.Thread(target=self.set_instance).start()
             return
 
@@ -108,6 +99,37 @@ class FeedKuksa(QThread):
                 self.sending_values.emit()
                 self.client.setValue(path, value)
                 self.finished_sending_values.emit()
+        except Exception as e:
+            logging.error(f"Error sending values to kuksa {e}")
+            threading.Thread(target=self.set_instance).start()
+
+    def setValues(self, values : dict[str, any] = None):
+        """
+        Sets VSS values.
+
+        Parameters:
+        -----------
+        values : Dict[str, Any]
+            The values to be set.
+
+        Raises:
+        -------
+        Exception
+            If there is an error setting the values.
+        """
+        
+        if self.client is None:
+            #logging.error("Kuksa client is None, try reconnecting")
+            return
+
+        if not self.client.checkConnection():
+            logging.error("Client is not connected, try reconnecting")
+            threading.Thread(target=self.set_instance).start()
+            return
+
+        try:
+            self.sending_values.emit()
+            self.client.setValues(values)
         except Exception as e:
             logging.error(f"Error sending values to kuksa {e}")
             threading.Thread(target=self.set_instance).start()

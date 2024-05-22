@@ -78,8 +78,8 @@ class MainWindow(Base, Form):
         self.dashboardButton = self.findChild(QPushButton, 'dashboardButton')
         UI_Handeler.Hide_Navbar(self, bool_arg=True)
 
-        self.stackedWidget.currentChanged.connect(lambda: UI_Handeler.subscribe_VSS_Signals(
-            self) if UI_Handeler.set_instance(self) else None)
+        #self.stackedWidget.currentChanged.connect(lambda: UI_Handeler.subscribe_VSS_Signals(
+        #    self) if UI_Handeler.set_instance(self) else None)
 
         self.notificationContent = self.findChild(
             QWidget, 'notificationContent')
@@ -109,10 +109,19 @@ class MainWindow(Base, Form):
         svg_widget.setStyleSheet("background-color: transparent;")
         self.steeringCtrlButton.setIcon(QIcon(svg_widget.grab()))
 
+        if not config.hvac_enabled():
+            self.hvacButton.hide()
+        if not config.steering_wheel_enabled():
+            self.steeringCtrlButton.hide()
+
         NavigationButtons = QtWidgets.QButtonGroup(self)
         NavigationButtons.setExclusive(True)
 
         for i, button in enumerate(Navigation_buttons):
+            if button == self.hvacButton and not config.hvac_enabled():
+                continue
+            if button == self.steeringCtrlButton and not config.steering_wheel_enabled():
+                continue
             button.setCheckable(True)
             NavigationButtons.addButton(button)
             button.clicked.connect(partial(UI_Handeler.animateSwitch, self, i))
@@ -164,12 +173,12 @@ class MainWindow(Base, Form):
 
         if self.current_page is not None:
             if self.current_page != 0 and self.current_page != 4:
-                self.stackedWidget.widget(self.current_page).feed_kuksa.stop()
+                self.stackedWidget.widget(self.current_page).kuksa_client.stop()
 
         self.current_page = page_index
 
         if self.current_page != 0 and self.current_page != 4:
-            self.stackedWidget.widget(self.current_page).feed_kuksa.start()
+            self.stackedWidget.widget(self.current_page).kuksa_client.start()
 
 
 if __name__ == '__main__':

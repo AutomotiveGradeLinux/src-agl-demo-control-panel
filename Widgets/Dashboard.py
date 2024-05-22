@@ -1,18 +1,7 @@
-"""
-    Copyright 2023 Suchinton Chakravarty
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at 
-
-        http://www.apache.org/licenses/LICENSE-2.0  
-        
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
+# Copyright (C) 2023 Suchinton Chakravarty
+# Copyright (C) 2024 Konsulko Group
+#
+# SPDX-License-Identifier: Apache-2.0
 
 from PyQt5 import QtCore, QtWidgets
 import os
@@ -25,6 +14,8 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QIcon
 from PyQt5 import QtCore
 from PyQt5 import QtSvg
+
+from extras import config
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -72,7 +63,17 @@ class Dashboard(Base, Form):
 
         DashboardTiles.buttonClicked.connect(self.tile_clicked)
 
-        for i, tile in enumerate(Dashboard_tiles):
+        for tile in Dashboard_tiles:
+            enabled = True
+            if tile == self.DB_HVAC_Tile and not config.hvac_enabled():
+                self.DB_HVAC_Tile.setEnabled(False)
+                self.DB_HVAC_Tile.setStyleSheet("background-color : darkGray; color : gray")
+                enabled = False
+            if tile == self.DB_Steering_Tile and not config.steering_wheel_enabled():
+                self.DB_Steering_Tile.setEnabled(False)
+                self.DB_Steering_Tile.setStyleSheet("background-color : darkGray; color: gray")
+                enabled = False
+
             self.set_icon(tile, 90)
             DashboardTiles.addButton(tile)
 
@@ -83,6 +84,13 @@ class Dashboard(Base, Form):
             self.DB_Steering_Tile: ":/Images/Images/steering-wheel.svg",
             self.DB_Settings_Tile: ":/Carbon_Icons/carbon_icons/settings.svg"
         }
+        icon_mapping_disabled = {
+            self.DB_IC_Tile: ":/Carbon_Icons/carbon_icons/meter-disabled.svg",
+            self.DB_HVAC_Tile: ":/Carbon_Icons/carbon_icons/windy--strong-disabled.svg",
+            self.DB_Steering_Tile: ":/Images/Images/steering-wheel-disabled.svg",
+            self.DB_Settings_Tile: ":/Carbon_Icons/carbon_icons/settings.svg"
+        }
+
 
         file = icon_mapping.get(tile)
         if file is None:
@@ -92,7 +100,19 @@ class Dashboard(Base, Form):
         svg_widget = QtSvg.QSvgWidget(file)
         svg_widget.setFixedSize(getsize.defaultSize()*2)
         svg_widget.setStyleSheet("background-color: transparent;")
-        tile.setIcon(QIcon(svg_widget.grab()))
+        icon = QIcon(svg_widget.grab())
+
+        file = icon_mapping_disabled.get(tile)
+        if file is None:
+            return
+
+        getsize = QtSvg.QSvgRenderer(file)
+        svg_widget = QtSvg.QSvgWidget(file)
+        svg_widget.setFixedSize(getsize.defaultSize()*2)
+        svg_widget.setStyleSheet("background-color: transparent;")
+        icon.addPixmap(svg_widget.grab(), QIcon.Disabled, QIcon.Off)
+
+        tile.setIcon(icon)
         tile.setIconSize(QtCore.QSize(icon_size, icon_size))
 
     def tile_clicked(self, tile):

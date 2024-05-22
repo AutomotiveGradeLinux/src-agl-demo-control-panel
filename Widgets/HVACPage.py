@@ -1,20 +1,9 @@
-"""
-    Copyright 2023 Suchinton Chakravarty
+# Copyright (C) 2023 Suchinton Chakravarty
+# Copyright (C) 2024 Konsulko Group
+#
+# SPDX-License-Identifier: Apache-2.0
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at 
-
-        http://www.apache.org/licenses/LICENSE-2.0  
-        
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
-
-from extras.FeedKuksa import FeedKuksa
+from extras.KuksaClient import KuksaClient
 import os
 import sys
 from PyQt5 import uic
@@ -63,7 +52,7 @@ class HVACWidget(Base, Form):
 
         self.HVAC = HVAC_Paths()
 
-        self.feed_kuksa = FeedKuksa()
+        self.kuksa_client = KuksaClient()
 
         self.leftTempList = self.findChild(QListWidget, "leftTempList")
         self.leftTempList.addItems(self.HVAC.temperatureList)
@@ -110,7 +99,7 @@ class HVACWidget(Base, Form):
     def leftTempListClicked(self):
         """
         Handles the event when an item in the left temperature list is clicked.
-        Sends the selected temperature value to the feed_kuksa object.
+        Sets the corresponding VSS signal to the selected temperature value.
         """
 
         self.setTemperature(self.leftTempList, self.HVAC.leftTemp)
@@ -118,7 +107,7 @@ class HVACWidget(Base, Form):
     def rightTempListClicked(self):
         """
         Handles the event when an item in the right temperature list is clicked.
-        Sends the selected temperature value to the feed_kuksa object.
+        Sets the corresponding VSS signal to the selected temperature value.
         """
 
         self.setTemperature(self.rightTempList, self.HVAC.rightTemp)
@@ -127,27 +116,27 @@ class HVACWidget(Base, Form):
         item = list_widget.currentItem()
         if item is not None:
             list_widget.scrollToItem(item, 1)
-            self.feed_kuksa.send_values(path, item.text()[:-2], "targetValue")
+            self.kuksa_client.set(path, item.text()[:-2], "targetValue")
             print(item.text())
 
     def leftFanSpeed_sliderChanged(self):
         """
         Handles the event when the left fan speed slider is changed.
-        Sends the selected fan speed value to the feed_kuksa object.
+        Sets the corresponding VSS signal to the fan speed value.
         """
 
         value = self.leftFanSpeed_slider.value()
-        self.feed_kuksa.send_values(self.HVAC.leftFanSpeed, str(value), "targetValue")
+        self.kuksa_client.set(self.HVAC.leftFanSpeed, str(value), "targetValue")
         print(value)
 
     def rightFanSpeed_sliderChanged(self):
         """
         Handles the event when the right fan speed slider is changed.
-        Sends the selected fan speed value to the feed_kuksa object.
+        Sets the corresponding VSS signal to the fan speed value.
         """
 
         value = self.rightFanSpeed_slider.value()
-        self.feed_kuksa.send_values(self.HVAC.rightFanSpeed, str(value), "targetValue")
+        self.kuksa_client.set(self.HVAC.rightFanSpeed, str(value), "targetValue")
         print(value)
 
 

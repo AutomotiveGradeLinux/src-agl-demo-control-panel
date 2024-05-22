@@ -1,31 +1,20 @@
-"""
-    Copyright 2023 Suchinton Chakravarty
+# Copyright (C) 2023 Suchinton Chakravarty
+# Copyright (C) 2024 Konsulko Group
+#
+# SPDX-License-Identifier: Apache-2.0
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at 
-
-        http://www.apache.org/licenses/LICENSE-2.0  
-        
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
-
-from extras.FeedKuksa import FeedKuksa
 import os
 import sys
+import logging
+import threading
+import time
 from PyQt5 import uic, QtCore, QtWidgets
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon, QPixmap, QPainter
 from PyQt5.QtCore import QObject, pyqtSignal
-import time
 from PyQt5.QtWidgets import QWidget
 from qtwidgets import AnimatedToggle
-import threading
-import logging
+from extras.KuksaClient import KuksaClient
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -69,8 +58,9 @@ class ICWidget(Base, Form):
 
         self.IC = IC_Paths()
 
-        self.feed_kuksa = FeedKuksa()
-        self.vehicle_simulator = VehicleSimulator()
+        self.kuksa_client = KuksaClient()
+        self.simulator = VehicleSimulator()
+        self.simulator_running = False
 
         header_frame = self.findChild(QWidget, "header_frame")
         layout = header_frame.layout()
@@ -92,8 +82,8 @@ class ICWidget(Base, Form):
 
         # group for the buttons for mutual exclusion
 
-        self.vehicle_simulator.speed_changed.connect(self.set_Vehicle_Speed)
-        self.vehicle_simulator.rpm_changed.connect(self.set_Vehicle_RPM)
+        self.simulator.speed_changed.connect(self.set_Vehicle_Speed)
+        self.simulator.rpm_changed.connect(self.set_Vehicle_RPM)
 
         self.driveGroupBtns = QtWidgets.QButtonGroup(self)
         self.driveGroupBtns.setExclusive(True)
@@ -142,7 +132,7 @@ class ICWidget(Base, Form):
         speed = int(self.Speed_slider.value())
         self.Speed_monitor.display(speed)
         try:
-            self.feed_kuksa.send_values(self.IC.speed, str(speed), 'value')
+            self.kuksa_client.set(self.IC.speed, str(speed), 'value')
         except Exception as e:
             logging.error(f"Error sending values to kuksa {e}")
 
@@ -153,7 +143,7 @@ class ICWidget(Base, Form):
         rpm = int(self.RPM_slider.value())
         self.RPM_monitor.display(rpm)
         try:
-            self.feed_kuksa.send_values(self.IC.engineRPM, str(rpm), 'value')
+            self.kuksa_client.set(self.IC.engineRPM, str(rpm), 'value')
         except Exception as e:
             logging.error(f"Error sending values to kuksa {e}")
 
@@ -163,7 +153,7 @@ class ICWidget(Base, Form):
         """
         coolantTemp = int(self.coolantTemp_slider.value())
         try:
-            self.feed_kuksa.send_values(
+            self.kuksa_client.set(
                 self.IC.coolantTemp, str(coolantTemp), 'value')
         except Exception as e:
             logging.error(f"Error sending values to kuksa {e}")
@@ -174,7 +164,7 @@ class ICWidget(Base, Form):
         """
         fuelLevel = int(self.fuelLevel_slider.value())
         try:
-            self.feed_kuksa.send_values(self.IC.fuelLevel, str(fuelLevel))
+            self.kuksa_client.set(self.IC.fuelLevel, str(fuelLevel))
         except Exception as e:
             logging.error(f"Error sending values to kuksa {e}")
 
@@ -201,9 +191,9 @@ class ICWidget(Base, Form):
         self.rightIndicatorBtn.setChecked(self.hazardBtn.isChecked())
 
         try:
-            self.feed_kuksa.send_values(self.IC.leftIndicator, value)
-            self.feed_kuksa.send_values(self.IC.rightIndicator, value)
-            self.feed_kuksa.send_values(self.IC.hazard, value)
+            self.kuksa_client.set(self.IC.leftIndicator, value, "targetValue")
+            self.kuksa_client.set(self.IC.rightIndicator, value, "targetValue")
+            self.kuksa_client.set(self.IC.hazard, value, "targetValue")
         except Exception as e:
             logging.error(f"Error sending values to kuksa {e}")
 
@@ -227,7 +217,7 @@ class ICWidget(Base, Form):
         self.leftIndicatorBtn.setIcon(QIcon(leftIndicatorIcon))
 
         try:
-            self.feed_kuksa.send_values(self.IC.leftIndicator, value)
+            self.kuksa_client.set(self.IC.leftIndicator, value)
         except Exception as e:
             logging.error(f"Error sending values to kuksa {e}")
 
@@ -251,7 +241,7 @@ class ICWidget(Base, Form):
         self.rightIndicatorBtn.setIcon(QIcon(rightIndicatorIcon))
 
         try:
-            self.feed_kuksa.send_values(self.IC.rightIndicator, value)
+            self.kuksa_client.set(self.IC.rightIndicator, value)
         except Exception as e:
             logging.error(f"Error sending values to kuksa {e}")
 
@@ -275,11 +265,23 @@ class ICWidget(Base, Form):
 
     def handle_Script_toggle(self):
         if self.Script_toggle.isChecked():
+            self.Speed_slider.setEnabled(False)
+            self.RPM_slider.setEnabled(False)
+            self.accelerationBtn.setEnabled(False)
+            for button in self.driveGroupBtns.buttons():
+                button.setEnabled(False)
             self.set_Vehicle_RPM(1000)
             self.set_Vehicle_Speed(0)
-            self.vehicle_simulator.start()
+            self.simulator_running = True
+            self.simulator.start()
         else:
-            self.vehicle_simulator.stop()
+            self.simulator.stop()
+            self.simulator_running = False
+            self.Speed_slider.setEnabled(True)
+            self.RPM_slider.setEnabled(True)
+            self.accelerationBtn.setEnabled(True)
+            for button in self.driveGroupBtns.buttons():
+                button.setEnabled(True)
 
     def updateSpeedAndEngineRpm(self, action, acceleration=(60/5)):
         if action == "Accelerate":
@@ -326,7 +328,7 @@ class ICWidget(Base, Form):
             self.Speed_slider.setEnabled(checked_button != self.neutralBtn)
             self.RPM_slider.setEnabled(True)
             try:
-                self.feed_kuksa.send_values(self.IC.selectedGear, gear_value)
+                self.kuksa_client.set(self.IC.selectedGear, gear_value)
             except Exception as e:
                 logging.error(f"Error sending values to kuksa {e}")
         else:
