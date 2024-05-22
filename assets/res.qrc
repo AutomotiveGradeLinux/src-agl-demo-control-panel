@@ -11,6 +11,7 @@
     <file>carbon_icons/information.svg</file>
     <file>carbon_icons/add--alt.svg</file>
     <file>carbon_icons/meter.svg</file>
+    <file>carbon_icons/meter-disabled.svg</file>
     <file>carbon_icons/misuse--outline.svg</file>
     <file>carbon_icons/phone--filled.svg</file>
     <file>carbon_icons/phone--off--filled.svg</file>
@@ -36,6 +37,7 @@
     <file>carbon_icons/temperature--water.svg</file>
     <file>carbon_icons/security-services.svg</file>
     <file>carbon_icons/windy--strong.svg</file>
+    <file>carbon_icons/windy--strong-disabled.svg</file>
   </qresource>
   <qresource prefix="Images">
     <file>Images/HMI_HVAC_Fan_Icon.svg</file>
@@ -43,6 +45,7 @@
     <file>Images/AGL_Icons_CruiseControl_white.svg</file>
     <file>Images/cruise-distance.svg</file>
     <file>Images/steering-wheel.svg</file>
+    <file>Images/steering-wheel-disabled.svg</file>
     <file>Images/low-beam.png</file>
     <file>Images/high-beam.png</file>
     <file>Images/fuel-icon.png</file>
