@@ -4,10 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import sys
 import logging
-import threading
-import time
+import sys
 from PyQt5 import uic, QtCore, QtWidgets
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon, QPixmap, QPainter
@@ -15,6 +13,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QWidget
 from qtwidgets import AnimatedToggle
 from extras.KuksaClient import KuksaClient
+from extras.VehicleSimulator import VehicleSimulator
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -131,10 +130,11 @@ class ICWidget(Base, Form):
         """
         speed = int(self.Speed_slider.value())
         self.Speed_monitor.display(speed)
-        try:
-            self.kuksa_client.set(self.IC.speed, str(speed), 'value')
-        except Exception as e:
-            logging.error(f"Error sending values to kuksa {e}")
+        if not self.simulator_running:
+            try:
+                self.kuksa_client.set(self.IC.speed, str(speed), 'value')
+            except Exception as e:
+                logging.error(f"Error sending values to kuksa {e}")
 
     def update_RPM_monitor(self):
         """
@@ -142,10 +142,11 @@ class ICWidget(Base, Form):
         """
         rpm = int(self.RPM_slider.value())
         self.RPM_monitor.display(rpm)
-        try:
-            self.kuksa_client.set(self.IC.engineRPM, str(rpm), 'value')
-        except Exception as e:
-            logging.error(f"Error sending values to kuksa {e}")
+        if not self.simulator_running:
+            try:
+                self.kuksa_client.set(self.IC.engineRPM, str(rpm), 'value')
+            except Exception as e:
+                logging.error(f"Error sending values to kuksa {e}")
 
     def update_coolantTemp_monitor(self):
         """
@@ -364,107 +365,6 @@ class AccelerationFns():
         engine_rpm = wheel_rps * gear_ratios[current_gear - 1] * 60
 
         return int(engine_rpm)
-
-
-class VehicleSimulator(QObject):
-    # Define signals for updating speed and rpm
-    speed_changed = pyqtSignal(int)
-    rpm_changed = pyqtSignal(int)
-
-    DEFAULT_IDLE_RPM = 1000
-
-    def __init__(self):
-        super().__init__()
-        self.freq = 10
-        self.vehicle_speed = 0
-        self.engine_speed = self.DEFAULT_IDLE_RPM
-        self.running = False
-        self.lock = threading.Lock()
-        self.thread = threading.Thread(target=self.run)
-
-    def start(self):
-        if not self.running:
-            self.reset()
-            self.running = True
-            if not self.thread.is_alive():
-                self.thread.start()
-
-    def stop(self):
-        self.running = False
-
-    def reset(self):
-        with self.lock:
-            self.vehicle_speed = 0
-            self.engine_speed = self.DEFAULT_IDLE_RPM
-
-    def run(self):
-        while self.running:
-            if not self.running:
-                break
-
-            # Simulate acceleration and update speed and rpm
-            self.accelerate(60, 1800, 3)
-            self.accelerate(65, 1700, 1)
-            self.accelerate(80, 2500, 6)
-            self.accelerate(100, 3000, 4)
-            self.brake(80, 3000, 3)
-            self.accelerate(104, 4000, 6)
-            self.brake(40, 2000, 4)
-            self.accelerate(90, 3000, 5)
-            self.brake(1, 650, 5)
-
-            # Ensure reset is called when not in cruise mode
-            if not self.running:
-                self.reset()
-
-            time.sleep(5)
-
-    def accelerate(self, target_speed, target_rpm, duration):
-        if target_speed <= self.vehicle_speed:
-            return
-        v = (target_speed - self.vehicle_speed) / (duration * self.freq)
-        r = (target_rpm - self.engine_speed) / (duration * self.freq)
-        while self.vehicle_speed < target_speed and self.running:
-            with self.lock:
-                self.vehicle_speed += v
-                self.engine_speed += r
-                self.speed_changed.emit(int(self.vehicle_speed))
-                self.rpm_changed.emit(int(self.engine_speed))
-            time.sleep(1 / self.freq)
-
-    def brake(self, target_speed, target_rpm, duration):
-        if target_speed >= self.vehicle_speed:
-            return
-        v = (self.vehicle_speed - target_speed) / (duration * self.freq)
-        r = (self.engine_speed - target_rpm) / (duration * self.freq)
-        while self.vehicle_speed > target_speed and self.running:
-            with self.lock:
-                self.vehicle_speed -= v
-                self.engine_speed -= r
-                self.speed_changed.emit(int(self.vehicle_speed))
-                self.rpm_changed.emit(int(self.engine_speed))
-            time.sleep(1 / self.freq)
-
-    def increase(self, bycruise=True):
-        if self.CRUISEACTIVE:
-            target_speed = self.vehicle_speed + 5
-            target_rpm = self.engine_speed * 1.1
-            self.accelerate(target_speed, target_rpm, 2, bycruise)
-
-    def decrease(self, bycruise=True):
-        if self.CRUISEACTIVE:
-            target_speed = self.vehicle_speed - 5
-            target_rpm = self.engine_speed * 0.9
-            self.brake(target_speed, target_rpm, 2, bycruise)
-
-    def resume(self, bycruise=True):
-        target_speed = self.CRUISESPEED
-        target_rpm = self.CRUISERPM
-        current_speed = self.get_vehicle_speed()
-        if target_speed > current_speed:
-            self.accelerate(target_speed, target_rpm, 2, bycruise)
-        else:
-            self.brake(target_speed, target_rpm, 2, bycruise)
 
 
 if __name__ == '__main__':
