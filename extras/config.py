@@ -25,10 +25,13 @@ def check_paths(*paths):
     return {path: os.path.exists(path) for path in paths}
 
 
+USER_CONFIG_PATH = os.path.join(os.path.expanduser("~"),
+                                ".local/share/agl-demo-control-panel/config.ini")
+
 CONFIG_PATHS = check_paths(
+    USER_CONFIG_PATH,
+    "/etc/agl-demo-control-panel/config.ini",
     "/etc/agl-demo-control-panel.ini",
-    os.path.join(os.path.expanduser("~"),
-                 ".local/share/agl-demo-control-panel/config.ini"),
     os.path.abspath(os.path.join(os.path.dirname(__file__), 'config.ini'))
 )
 
@@ -132,6 +135,9 @@ def save_config(new_config, auth_token, CA_File=None):
     else:
         config.set('vss-server', 'cacert', str(CA_File))
 
+    # Always save to the user config
+    config_path = USER_CONFIG_PATH
+    os.makedirs(os.path.dirname(config_path), exist_ok=True)
     with open(config_path, 'w') as configfile:
         config.write(configfile)
 
