@@ -6,14 +6,11 @@
 import os
 import logging
 import sys
-from PyQt5 import uic, QtCore, QtWidgets
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtGui import QIcon, QPixmap, QPainter
-from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5.QtWidgets import QWidget
-from qtwidgets import AnimatedToggle
-from extras.KuksaClient import KuksaClient
-from extras.VehicleSimulator import VehicleSimulator
+from PyQt6 import uic, QtCore, QtWidgets
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QIcon, QPixmap, QPainter
+from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtWidgets import QWidget
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -26,6 +23,10 @@ Form, Base = uic.loadUiType(os.path.join(current_dir, "../ui/IC.ui"))
 
 # ========================================
 
+from extras.KuksaClient import KuksaClient
+from extras.VehicleSimulator import VehicleSimulator
+import res_rc
+from Widgets.animatedToggle import AnimatedToggle
 
 class IC_Paths():
     def __init__(self):
@@ -66,10 +67,7 @@ class ICWidget(Base, Form):
 
         self.IC_Frame = self.findChild(QWidget, "frame_1")
 
-        self.Script_toggle = AnimatedToggle(
-            checked_color="#4BD7D6",
-            pulse_checked_color="#00ffff"
-        )
+        self.Script_toggle = AnimatedToggle()
 
         layout.replaceWidget(self.demoToggle, self.Script_toggle)
         self.demoToggle.deleteLater()
@@ -175,13 +173,13 @@ class ICWidget(Base, Form):
         """
         hazardIcon = QPixmap(":/Images/Images/hazard.png")
         painter = QPainter(hazardIcon)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
 
         if self.hazardBtn.isChecked():
-            color = QtCore.Qt.yellow
+            color = QtCore.Qt.GlobalColor.yellow
             value = "true"
         else:
-            color = QtCore.Qt.black
+            color = QtCore.Qt.GlobalColor.black
             value = "false"
 
         painter.fillRect(hazardIcon.rect(), color)
@@ -204,13 +202,13 @@ class ICWidget(Base, Form):
         """
         leftIndicatorIcon = QPixmap(":/Images/Images/left.png")
         painter = QPainter(leftIndicatorIcon)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
 
         if self.leftIndicatorBtn.isChecked():
-            color = QtCore.Qt.green
+            color = QtCore.Qt.GlobalColor.green
             value = "true"
         else:
-            color = QtCore.Qt.black
+            color = QtCore.Qt.GlobalColor.black
             value = "false"
 
         painter.fillRect(leftIndicatorIcon.rect(), color)
@@ -228,13 +226,13 @@ class ICWidget(Base, Form):
         """
         rightIndicatorIcon = QPixmap(":/Images/Images/right.png")
         painter = QPainter(rightIndicatorIcon)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
 
         if self.rightIndicatorBtn.isChecked():
-            color = QtCore.Qt.green
+            color = QtCore.Qt.GlobalColor.green
             value = "true"
         else:
-            color = QtCore.Qt.black
+            color = QtCore.Qt.GlobalColor.black
             value = "false"
 
         painter.fillRect(rightIndicatorIcon.rect(), color)
@@ -371,4 +369,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = ICWidget()
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

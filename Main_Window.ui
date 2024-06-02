@@ -532,9 +532,6 @@ QStackedWidget{
   <property name="tabShape">
    <enum>QTabWidget::Rounded</enum>
   </property>
-  <property name="dockOptions">
-   <set>QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
-  </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>true</bool>
   </property>

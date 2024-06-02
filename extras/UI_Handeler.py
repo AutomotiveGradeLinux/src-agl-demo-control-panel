@@ -15,16 +15,16 @@
 """
 
 from main import *
-from PyQt5 import QtCore
-from PyQt5.QtCore import QPropertyAnimation
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import QEasingCurve
-from PyQt5.QtWidgets import QGraphicsOpacityEffect
+from PyQt6 import QtCore
+from PyQt6.QtCore import QPropertyAnimation
+from PyQt6.QtWidgets import QWidget
+from PyQt6.QtCore import QEasingCurve
+from PyQt6.QtWidgets import QGraphicsOpacityEffect
 from kuksa_client.grpc import Field, SubscribeEntry, View
 from kuksa_client.grpc.aio import VSSClient
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import QThread
 import asyncio
-from PyQt5.QtCore import QThread
 import pathlib
 import logging
 import json
@@ -91,7 +91,7 @@ class UI_Handeler(MainWindow):
 
     def fullscreen(self):
         self.headerContainer.hide()
-        self.setAttribute(QtCore.Qt.WA_TranslucentBackground, False)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground, False)
         self.showFullScreen()
 
     def block_updates():
@@ -117,7 +117,7 @@ class UI_Handeler(MainWindow):
         self.animation.setDuration(400)
         self.animation.setStartValue(height)
         self.animation.setEndValue(heightExtended)
-        self.animation.setEasingCurve(QtCore.QEasingCurve.InOutQuart)
+        self.animation.setEasingCurve(QtCore.QEasingCurve.Type.OutBounce)
         self.animation.start()
 
     def animateSwitch(self, index):
@@ -313,10 +313,10 @@ class FaderWidget(QWidget):
         self.new_widget.setGraphicsEffect(self.effect)
 
         self.animation = QPropertyAnimation(self.effect, b"opacity")
-        self.animation.setDuration(300)
+        self.animation.setDuration(200)
         self.animation.setStartValue(0)
         self.animation.setEndValue(1)
-        self.animation.setEasingCurve(QEasingCurve.OutCubic)
+        self.animation.setEasingCurve(QEasingCurve.Type.InCubic)
         self.animation.finished.connect(self.close)
 
         self.animate()

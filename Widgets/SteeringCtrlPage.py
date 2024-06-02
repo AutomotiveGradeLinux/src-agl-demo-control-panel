@@ -3,13 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from . import settings
-import extras.FeedCAN as feed_can
-from extras.KuksaClient import KuksaClient
 import os
 import sys
-from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication, QButtonGroup
+from PyQt6 import uic
+from PyQt6.QtWidgets import QApplication, QButtonGroup
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,6 +20,11 @@ Form, Base = uic.loadUiType(os.path.join(
 
 # ========================================
 
+
+import extras.FeedCAN as feed_can
+from Widgets import settings
+from extras.KuksaClient import KuksaClient
+import res_rc
 
 class Steering_Paths():
     def __init__(self):
@@ -142,4 +144,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = SteeringCtrlWidget()
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from PyQt5.QtCore import QThread
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtCore import QThread
+from PyQt6.QtCore import pyqtSignal
 from . import Kuksa_Instance as kuksa_instance
 import threading
 
@@ -103,7 +103,7 @@ class KuksaClient(QThread):
             logging.error(f"Error sending values to kuksa {e}")
             threading.Thread(target=self.set_instance).start()
 
-    def setValues(self, values : dict[str, any] = None):
+    def setValues(self, values: dict[str, any] = None):
         """
         Sets VSS values.
 

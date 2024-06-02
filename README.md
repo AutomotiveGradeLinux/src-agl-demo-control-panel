@@ -1,6 +1,6 @@
 # AGL_Demo_Control_Panel
 
-A PyQt5 application to simulate CAN Bus signals using Kuksa.val for the AGL Demo platform. This application is to be used in parallel to the relevant AGL Images or any application that subscribes to VSS signals using [Kuksa.val-server](https://github.com/eclipse/kuksa.val/tree/master/kuksa-val-server) or [Kuksa-databroker](https://github.com/eclipse/kuksa.val/tree/master/kuksa_databroker).
+A PyQt6 application to simulate CAN Bus signals using Kuksa.val for the AGL Demo platform. This application is to be used in parallel to the relevant AGL Images or any application that subscribes to VSS signals using [Kuksa.val-server](https://github.com/eclipse/kuksa.val/tree/master/kuksa-val-server) or [Kuksa-databroker](https://github.com/eclipse/kuksa.val/tree/master/kuksa_databroker).
 
 ## # Installation
 
@@ -14,24 +14,12 @@ A PyQt5 application to simulate CAN Bus signals using Kuksa.val for the AGL Demo
     ```
 - Install the Python dependencies:
 
-    - _Note_: 
-        If errors occure in Debian based/Rasbian OS during installation:  
-        ```bash
-        $ nano requirements.txt
-        # -> Comment pyqt5 dependency using "#"
-        $ sudo apt install python3-pyqt5 python3-qtpy pyqt5-dev-tools python3-pyqt5.qtsvg -y
-        ```
-        and skip to step 2
-
     - Step 1
     ```bash
     $ python3 -m venv control-panel
     $ source control-panel/bin/activate
-    ```
-    - Step 2
-    ```bash
     $ pip3 install -r requirements.txt
-    $ pyrcc5 assets/res.qrc -o res_rc.py
+    $ pyside6-rcc assets/res.qrc -o res_rc.py
     ```
 
 ## # Usage

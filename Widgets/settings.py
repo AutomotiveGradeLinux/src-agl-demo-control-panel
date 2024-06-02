@@ -3,18 +3,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from extras import config
-import extras.Kuksa_Instance as kuksa_instance
+
 
 import os
 import sys
 import time
-from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication, QLineEdit, QPushButton, QLabel, QComboBox, QStyledItemDelegate
-from qtwidgets import AnimatedToggle
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import QThread
-from PyQt5 import QtGui
+from PyQt6.QtWidgets import QApplication, QLineEdit, QPushButton, QLabel
+from PyQt6 import uic
+from PyQt6.QtWidgets import QWidget
+from PyQt6.QtCore import QThread
+from PyQt6 import QtGui
 import logging
 import can
 
@@ -23,6 +21,11 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 # ========================================
 
 sys.path.append(os.path.dirname(current_dir))
+
+from extras import config
+import extras.Kuksa_Instance as kuksa_instance
+from Widgets.animatedToggle import AnimatedToggle
+import res_rc
 
 
 Form, Base = uic.loadUiType(os.path.join(
@@ -33,14 +36,6 @@ Form, Base = uic.loadUiType(os.path.join(
 # Global Variables
 Steering_Signal_Type = "Kuksa"
 Protocol = None
-
-def create_animated_toggle():
-    return AnimatedToggle(
-        checked_color="#4BD7D6",
-        pulse_checked_color="#00ffff",
-        pulse_unchecked_color= "#4BD7D6",
-    )
-
 
 class settings(Base, Form):
     """
@@ -64,8 +59,8 @@ class settings(Base, Form):
         self.setupUi(self)
         self.client = None
 
-        self.SSL_toggle = create_animated_toggle()
-        self.Protocol_toggle = create_animated_toggle()
+        self.SSL_toggle = AnimatedToggle()
+        self.Protocol_toggle = AnimatedToggle()
 
         self.connectionStatus = self.findChild(QLabel, "connectionStatus")
         self.connectionLogo = self.findChild(QLabel, "connectionLogo")
@@ -96,7 +91,7 @@ class settings(Base, Form):
 
         GS_layout.replaceWidget(self.place_holder_toggle_1, self.SSL_toggle)
         GS_layout.replaceWidget(
-            self.place_holder_toggle_2, self.Protocol_toggle)
+           self.place_holder_toggle_2, self.Protocol_toggle)
 
         self.place_holder_toggle_1.deleteLater()
         self.place_holder_toggle_2.deleteLater()
@@ -294,4 +289,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = settings()
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

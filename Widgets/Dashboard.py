@@ -3,19 +3,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from PyQt5 import QtCore, QtWidgets
 import os
 import sys
-from PyQt5 import uic
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import *
-from PyQt5.QtSvg import *
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtGui import QIcon
-from PyQt5 import QtCore
-from PyQt5 import QtSvg
-
-from extras import config
+from PyQt6 import uic
+from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtWidgets
+from PyQt6.QtWidgets import *
+from PyQt6.QtSvg import *
+from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QSize
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -28,6 +26,8 @@ Form, Base = uic.loadUiType(os.path.join(current_dir, "../ui/Dashboard.ui"))
 
 # ========================================
 
+from extras import config
+import res_rc
 
 class Dashboard(Base, Form):
     """
@@ -78,42 +78,34 @@ class Dashboard(Base, Form):
             DashboardTiles.addButton(tile)
 
     def set_icon(self, tile, icon_size):
-        icon_mapping = {
-            self.DB_IC_Tile: ":/Carbon_Icons/carbon_icons/meter.svg",
-            self.DB_HVAC_Tile: ":/Carbon_Icons/carbon_icons/windy--strong.svg",
-            self.DB_Steering_Tile: ":/Images/Images/steering-wheel.svg",
-            self.DB_Settings_Tile: ":/Carbon_Icons/carbon_icons/settings.svg"
-        }
-        icon_mapping_disabled = {
-            self.DB_IC_Tile: ":/Carbon_Icons/carbon_icons/meter-disabled.svg",
-            self.DB_HVAC_Tile: ":/Carbon_Icons/carbon_icons/windy--strong-disabled.svg",
-            self.DB_Steering_Tile: ":/Images/Images/steering-wheel-disabled.svg",
-            self.DB_Settings_Tile: ":/Carbon_Icons/carbon_icons/settings.svg"
+        icon_mappings = {
+            self.DB_IC_Tile: {
+                "normal": ":/Carbon_Icons/carbon_icons/meter.svg",
+                "disabled": ":/Carbon_Icons/carbon_icons/meter-disabled.svg"
+            },
+            self.DB_HVAC_Tile: {
+                "normal": ":/Carbon_Icons/carbon_icons/windy--strong.svg",
+                "disabled": ":/Carbon_Icons/carbon_icons/windy--strong-disabled.svg"
+            },
+            self.DB_Steering_Tile: {
+                "normal": ":/Images/Images/steering-wheel.svg",
+                "disabled": ":/Images/Images/steering-wheel-disabled.svg"
+            },
+            self.DB_Settings_Tile: {
+                "normal": ":/Carbon_Icons/carbon_icons/settings.svg",
+                "disabled": ":/Carbon_Icons/carbon_icons/settings.svg"  # Assuming the same icon for simplicity
+            }
         }
 
+        icon_key = "disabled" if not tile.isEnabled() else "normal"
+        file_path = icon_mappings.get(tile, {}).get(icon_key)
 
-        file = icon_mapping.get(tile)
-        if file is None:
+        if not file_path:
             return
 
-        getsize = QtSvg.QSvgRenderer(file)
-        svg_widget = QtSvg.QSvgWidget(file)
-        svg_widget.setFixedSize(getsize.defaultSize()*2)
-        svg_widget.setStyleSheet("background-color: transparent;")
-        icon = QIcon(svg_widget.grab())
-
-        file = icon_mapping_disabled.get(tile)
-        if file is None:
-            return
-
-        getsize = QtSvg.QSvgRenderer(file)
-        svg_widget = QtSvg.QSvgWidget(file)
-        svg_widget.setFixedSize(getsize.defaultSize()*2)
-        svg_widget.setStyleSheet("background-color: transparent;")
-        icon.addPixmap(svg_widget.grab(), QIcon.Disabled, QIcon.Off)
-
+        icon = QIcon(file_path)
         tile.setIcon(icon)
-        tile.setIconSize(QtCore.QSize(icon_size, icon_size))
+        tile.setIconSize(QSize(icon_size, icon_size))
 
     def tile_clicked(self, tile):
         """
@@ -139,4 +131,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = Dashboard()
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

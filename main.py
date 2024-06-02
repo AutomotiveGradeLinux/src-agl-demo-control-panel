@@ -14,25 +14,21 @@
    limitations under the License.
 """
 
-from Widgets.Dashboard import Dashboard
-from extras.UI_Handeler import *
 import sys
 import os
 
-from PyQt5 import uic, QtCore, QtWidgets
-from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+from PyQt6 import uic, QtCore, QtWidgets
+from PyQt6.QtWidgets import QApplication, QPushButton, QWidget
 from functools import partial
-from PyQt5 import QtGui
-from PyQt5.QtCore import Qt
-from PyQt5 import QtSvg
-from PyQt5.QtSvg import *
-from PyQt5.QtGui import QIcon
-
-import extras.config as config
+from PyQt6 import QtGui
+from PyQt6.QtCore import Qt
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 Form, Base = uic.loadUiType(os.path.join(current_dir, "Main_Window.ui"))
 
+from Widgets.Dashboard import Dashboard
+from extras.UI_Handeler import *
+import extras.config as config
 
 class MainWindow(Base, Form):
     """
@@ -53,8 +49,8 @@ class MainWindow(Base, Form):
         """
         super(self.__class__, self).__init__(parent)
         self.setupUi(self)
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
 
         # set fullscreen mode if enabled in config.ini
@@ -104,10 +100,7 @@ class MainWindow(Base, Form):
                               self.settingsBtn)
 
         steering_icon = ":/Images/Images/steering-wheel.svg"
-        svg_widget = QtSvg.QSvgWidget(steering_icon)
-        svg_widget.setFixedSize(QtSvg.QSvgRenderer(steering_icon).defaultSize())
-        svg_widget.setStyleSheet("background-color: transparent;")
-        self.steeringCtrlButton.setIcon(QIcon(svg_widget.grab()))
+        self.steeringCtrlButton.setIcon(QtGui.QIcon(steering_icon))
 
         if not config.hvac_enabled():
             self.hvacButton.hide()
@@ -150,7 +143,7 @@ class MainWindow(Base, Form):
                                         }
                                     """)
         self.centralwidget.layout().addWidget(
-            self.size_grip, 0, Qt.AlignBottom | Qt.AlignRight)
+            self.size_grip, 0, Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignRight)
 
     def VSS_callback(self, data):
         pass
@@ -188,4 +181,4 @@ if __name__ == '__main__':
         ':/Images/Images/Automotive_Grade_Linux_logo.svg'))
     window = MainWindow()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

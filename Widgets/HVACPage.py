@@ -3,11 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from extras.KuksaClient import KuksaClient
 import os
 import sys
-from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication, QListWidget, QSlider, QPushButton
+from PyQt6 import uic
+from PyQt6.QtWidgets import QApplication, QListWidget, QSlider, QPushButton
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -20,6 +19,8 @@ Form, Base = uic.loadUiType(os.path.join(current_dir, "../ui/HVAC.ui"))
 
 # ========================================
 
+from extras.KuksaClient import KuksaClient
+import res_rc
 
 class HVAC_Paths():
     def __init__(self):
@@ -115,7 +116,7 @@ class HVACWidget(Base, Form):
     def setTemperature(self, list_widget, path):
         item = list_widget.currentItem()
         if item is not None:
-            list_widget.scrollToItem(item, 1)
+            list_widget.scrollToItem(item)
             self.kuksa_client.set(path, item.text()[:-2], "targetValue")
             print(item.text())
 
@@ -145,4 +146,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = HVACWidget()
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

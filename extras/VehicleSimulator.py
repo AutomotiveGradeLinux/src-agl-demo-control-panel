@@ -8,7 +8,7 @@ import math
 import random
 import time
 import threading
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal
 from extras.KuksaClient import KuksaClient
 
 class VehicleSimulator(QObject):
