@@ -19,10 +19,9 @@ apt-get install --yes \
 # Install AGL Demo Control Panel dependencies
 apt-get install --yes \
  python3-pip \
- python3-pyqt5 \
- python3-qtpy \
- pyqt5-dev-tools \
- python3-pyqt5.qtsvg
+ python3-venv \
+ python3-pyqt6.sip \
+ qt6-base-dev
 
 # Set bash as default shell
 echo "dash dash/sh boolean false" | debconf-set-selections - && dpkg-reconfigure dash
