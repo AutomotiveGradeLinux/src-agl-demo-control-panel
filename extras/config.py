@@ -151,6 +151,9 @@ def hvac_enabled():
 def steering_wheel_enabled():
     return config.getboolean('default', 'steering-wheel-enabled', fallback=True)
 
+def file_playback_enabled():
+    return config.getboolean('default', 'file-playback-enabled', fallback=True)
+
 
 if not config.has_section('vss-server'):
     config.add_section('vss-server')

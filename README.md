@@ -20,6 +20,8 @@ A PyQt6 application to simulate CAN Bus signals using Kuksa.val for the AGL Demo
     $ source control-panel/bin/activate
     $ pip3 install -r requirements.txt
     $ pyside6-rcc assets/res.qrc -o res_rc.py
+    # (OR)
+    $ /usr/lib64/qt6/libexec/rcc -g python assets/res.qrc | sed '0,/PySide6/s//PyQt6/' > res_rc.py
     ```
 
 ## # Usage

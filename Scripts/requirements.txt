@@ -1,0 +1,4 @@
+cantools
+carla
+python-can
+rich

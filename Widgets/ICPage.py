@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QIcon, QPixmap, QPainter
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QWidget
+import threading
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,8 +24,10 @@ Form, Base = uic.loadUiType(os.path.join(current_dir, "../ui/IC.ui"))
 
 # ========================================
 
+import extras.config as config
 from extras.KuksaClient import KuksaClient
 from extras.VehicleSimulator import VehicleSimulator
+from Scripts.record_playback import CAN_playback
 import res_rc
 from Widgets.animatedToggle import AnimatedToggle
 
@@ -263,24 +266,34 @@ class ICWidget(Base, Form):
             self.acceleration_timer.start(100)
 
     def handle_Script_toggle(self):
-        if self.Script_toggle.isChecked():
-            self.Speed_slider.setEnabled(False)
-            self.RPM_slider.setEnabled(False)
-            self.accelerationBtn.setEnabled(False)
-            for button in self.driveGroupBtns.buttons():
-                button.setEnabled(False)
-            self.set_Vehicle_RPM(1000)
-            self.set_Vehicle_Speed(0)
-            self.simulator_running = True
-            self.simulator.start()
+        if config.file_playback_enabled():
+            can_tool = CAN_playback()
+            if self.Script_toggle.isChecked():
+                can_tool_thread = threading.Thread(
+                    target=can_tool.playback_messages)
+                can_tool_thread.start()
+            else:
+                can_tool.stop()
+
         else:
-            self.simulator.stop()
-            self.simulator_running = False
-            self.Speed_slider.setEnabled(True)
-            self.RPM_slider.setEnabled(True)
-            self.accelerationBtn.setEnabled(True)
-            for button in self.driveGroupBtns.buttons():
-                button.setEnabled(True)
+            if self.Script_toggle.isChecked():
+                self.Speed_slider.setEnabled(False)
+                self.RPM_slider.setEnabled(False)
+                self.accelerationBtn.setEnabled(False)
+                for button in self.driveGroupBtns.buttons():
+                    button.setEnabled(False)
+                self.set_Vehicle_RPM(1000)
+                self.set_Vehicle_Speed(0)
+                self.simulator_running = True
+                self.simulator.start()
+            else:
+                self.simulator.stop()
+                self.simulator_running = False
+                self.Speed_slider.setEnabled(True)
+                self.RPM_slider.setEnabled(True)
+                self.accelerationBtn.setEnabled(True)
+                for button in self.driveGroupBtns.buttons():
+                    button.setEnabled(True)
 
     def updateSpeedAndEngineRpm(self, action, acceleration=(60/5)):
         if action == "Accelerate":
