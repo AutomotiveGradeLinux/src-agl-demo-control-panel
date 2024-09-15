@@ -9,9 +9,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>903</width>
-    <height>705</height>
+    <width>1600</width>
+    <height>900</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1600</width>
+    <height>900</height>
+   </size>
   </property>
   <property name="palette">
    <palette>
@@ -153,7 +159,7 @@
      </colorrole>
      <colorrole role="PlaceholderText">
       <brush brushstyle="SolidPattern">
-       <color alpha="255">
+       <color alpha="128">
         <red>255</red>
         <green>255</green>
         <blue>255</blue>
@@ -299,7 +305,7 @@
      </colorrole>
      <colorrole role="PlaceholderText">
       <brush brushstyle="SolidPattern">
-       <color alpha="255">
+       <color alpha="128">
         <red>255</red>
         <green>255</green>
         <blue>255</blue>
@@ -445,7 +451,7 @@
      </colorrole>
      <colorrole role="PlaceholderText">
       <brush brushstyle="SolidPattern">
-       <color alpha="255">
+       <color alpha="128">
         <red>255</red>
         <green>255</green>
         <blue>255</blue>

@@ -10,7 +10,8 @@ from PyQt6 import uic, QtCore, QtWidgets
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QIcon, QPixmap, QPainter
 from PyQt6.QtCore import QObject, pyqtSignal
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget, QFrame
+from PyQt6.QtQuickWidgets import QQuickWidget
 import threading
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -31,6 +32,41 @@ from Scripts.record_playback import CAN_playback
 import res_rc
 from Widgets.animatedToggle import AnimatedToggle
 
+def Gauge(gaugeType):
+    """QWidget
+    This function creates a full gauge widget with the specified maximum value, current value, and unit.
+
+    Args:
+    - maxValue: The maximum value of the gauge.
+    - value: The current value of the gauge.
+    - unit: The unit of the gauge.
+
+    Returns:
+    - A QQuickWidget object representing the full gauge widget.
+    """
+
+    RPM_GaugeQML = os.path.join(current_dir, "../QMLWidgets/Full_Gauge/RPMGauge.qml")
+    Speed_GaugeQML = os.path.join(current_dir, "../QMLWidgets/Full_Gauge/SpeedGauge.qml")
+    Fuel_GaugeQML = os.path.join(current_dir, "../QMLWidgets/Half_Gauge/FuelGauge.qml")
+    Coolant_GaugeQML = os.path.join(current_dir, "../QMLWidgets/Half_Gauge/CoolantGauge.qml")
+
+    gauge = QQuickWidget()
+    if gaugeType == "RPM":
+        gauge.setSource(QtCore.QUrl(RPM_GaugeQML))
+
+    elif gaugeType == "Speed":
+        gauge.setSource(QtCore.QUrl(Speed_GaugeQML))
+
+    elif gaugeType == "Fuel":
+        gauge.setSource(QtCore.QUrl(Fuel_GaugeQML))
+
+    elif gaugeType == "Coolant":
+        gauge.setSource(QtCore.QUrl(Coolant_GaugeQML))
+        
+    gauge.setResizeMode(QQuickWidget.ResizeMode.SizeRootObjectToView)
+    
+    return gauge
+
 class IC_Paths():
     def __init__(self):
         self.speed = "Vehicle.Speed"
@@ -41,7 +77,6 @@ class IC_Paths():
         self.fuelLevel = "Vehicle.Powertrain.FuelSystem.RelativeLevel"
         self.coolantTemp = "Vehicle.Powertrain.CombustionEngine.ECT"
         self.selectedGear = "Vehicle.Powertrain.Transmission.SelectedGear"
-
 
 class ICWidget(Base, Form):
     """
@@ -68,7 +103,9 @@ class ICWidget(Base, Form):
         header_frame = self.findChild(QWidget, "header_frame")
         layout = header_frame.layout()
 
-        self.IC_Frame = self.findChild(QWidget, "frame_1")
+        self.Frame_1 = self.findChild(QWidget, "frame_1")
+        self.Fuel_Gauge_Frame = self.findChild(QFrame, "fuel_gauge_frame")
+        self.Coolant_Gauge_Frame = self.findChild(QFrame, "coolant_gauge_frame")
 
         self.Script_toggle = AnimatedToggle()
 
@@ -93,23 +130,41 @@ class ICWidget(Base, Form):
 
         self.driveGroupBtns.buttonClicked.connect(self.driveBtnClicked)
 
-        self.Speed_slider.valueChanged.connect(self.update_Speed_monitor)
+        Speed_Gauge_Placeholder = self.findChild(QWidget, "Speed_Gauge_Placeholder")
+        self.Speed_Gauge = Gauge("Speed")
+        self.Frame_1.layout().replaceWidget(Speed_Gauge_Placeholder, self.Speed_Gauge)
+
+        self.Speed_slider.valueChanged.connect(self.update_Speed_gauge)
         self.Speed_slider.setMinimum(0)
         self.Speed_slider.setMaximum(240)
+
+        RPM_Gauge_Placeholder = self.findChild(QWidget, "RPM_Gauge_Placeholder")
+        self.RPM_Gauge = Gauge("RPM")
+        self.Frame_1.layout().replaceWidget(RPM_Gauge_Placeholder, self.RPM_Gauge)
 
         self.RPM_slider.valueChanged.connect(self.update_RPM_monitor)
         self.RPM_slider.setMinimum(0)
         self.RPM_slider.setMaximum(8000)
+
+        fuel_Gauge_Placeholder = self.findChild(QWidget, "fuel_Gauge_Placeholder")
+        self.Fuel_Gauge = Gauge("Fuel")
+        self.Fuel_Gauge_Frame.layout().replaceWidget(fuel_Gauge_Placeholder, self.Fuel_Gauge)
+
+        coolant_Gauge_Placeholder = self.findChild(QWidget, "coolant_Gauge_Placeholder")
+        self.Coolant_Gauge = Gauge("Coolant")
+        self.Coolant_Gauge_Frame.layout().replaceWidget(coolant_Gauge_Placeholder, self.Coolant_Gauge)
+
+        self.mousePressEvent = lambda event: print("Mouse Pressed")
+        self.mouseReleaseEvent = lambda event: print("Mouse Released")
+
+        self.Coolant_Gauge.mousePressEvent = self.mousePressEvent
+        self.Coolant_Gauge.mouseReleaseEvent = self.mouseReleaseEvent
 
         self.coolantTemp_slider.valueChanged.connect(
             self.update_coolantTemp_monitor)
         self.fuelLevel_slider.valueChanged.connect(
             self.update_fuelLevel_monitor)
 
-        self.accelerationBtn.pressed.connect(self.accelerationBtnPressed)
-        self.accelerationBtn.released.connect(self.accelerationBtnReleased)
-
-        # make both buttons checkable
         self.Script_toggle.clicked.connect(self.handle_Script_toggle)
         self.leftIndicatorBtn.setCheckable(True)
         self.rightIndicatorBtn.setCheckable(True)
@@ -125,12 +180,13 @@ class ICWidget(Base, Form):
     def set_Vehicle_RPM(self, rpm):
         self.RPM_slider.setValue(rpm)
 
-    def update_Speed_monitor(self):
+    def update_Speed_gauge(self):
         """
         Updates the speed monitor with the current speed value.
         """
         speed = int(self.Speed_slider.value())
-        self.Speed_monitor.display(speed)
+        speed = speed / 240
+        self.Speed_Gauge.rootObject().setProperty('value', speed)
         if not self.simulator_running:
             try:
                 self.kuksa_client.set(self.IC.speed, str(speed), 'value')
@@ -142,7 +198,8 @@ class ICWidget(Base, Form):
         Updates the RPM monitor with the current RPM value.
         """
         rpm = int(self.RPM_slider.value())
-        self.RPM_monitor.display(rpm)
+        rpm = rpm / 8000
+        self.RPM_Gauge.rootObject().setProperty('value', rpm)
         if not self.simulator_running:
             try:
                 self.kuksa_client.set(self.IC.engineRPM, str(rpm), 'value')
@@ -154,6 +211,7 @@ class ICWidget(Base, Form):
         Updates the coolant temperature monitor with the current coolant temperature value.
         """
         coolantTemp = int(self.coolantTemp_slider.value())
+        self.Coolant_Gauge.rootObject().setProperty('value', coolantTemp/100)
         try:
             self.kuksa_client.set(
                 self.IC.coolantTemp, str(coolantTemp), 'value')
@@ -165,6 +223,8 @@ class ICWidget(Base, Form):
         Updates the fuel level monitor with the current fuel level value.
         """
         fuelLevel = int(self.fuelLevel_slider.value())
+        self.Fuel_Gauge.rootObject().setProperty('value', fuelLevel/100)
+        print(self.Fuel_Gauge.rootObject().property('value'))
         try:
             self.kuksa_client.set(self.IC.fuelLevel, str(fuelLevel))
         except Exception as e:
@@ -279,7 +339,7 @@ class ICWidget(Base, Form):
             if self.Script_toggle.isChecked():
                 self.Speed_slider.setEnabled(False)
                 self.RPM_slider.setEnabled(False)
-                self.accelerationBtn.setEnabled(False)
+                # self.accelerationBtn.setEnabled(False)
                 for button in self.driveGroupBtns.buttons():
                     button.setEnabled(False)
                 self.set_Vehicle_RPM(1000)
@@ -291,7 +351,7 @@ class ICWidget(Base, Form):
                 self.simulator_running = False
                 self.Speed_slider.setEnabled(True)
                 self.RPM_slider.setEnabled(True)
-                self.accelerationBtn.setEnabled(True)
+                # self.accelerationBtn.setEnabled(True)
                 for button in self.driveGroupBtns.buttons():
                     button.setEnabled(True)
 
@@ -321,7 +381,7 @@ class ICWidget(Base, Form):
         self.Speed_slider.setValue(self.current_speed)
         self.RPM_slider.setValue(self.current_rpm)
 
-        self.update_Speed_monitor()
+        self.update_Speed_gauge()
         self.update_RPM_monitor()
 
     def driveBtnClicked(self):
@@ -336,7 +396,7 @@ class ICWidget(Base, Form):
 
         if checked_button in gear_mapping:
             gear_value = gear_mapping[checked_button]
-            self.accelerationBtn.setEnabled(True)
+            # self.accelerationBtn.setEnabled(True)
             self.Speed_slider.setEnabled(checked_button != self.neutralBtn)
             self.RPM_slider.setEnabled(True)
             try:
@@ -345,7 +405,6 @@ class ICWidget(Base, Form):
                 logging.error(f"Error sending values to kuksa {e}")
         else:
             print("Unknown button checked!")
-
 
 class AccelerationFns():
     def calculate_speed(time, acceleration) -> int:
