@@ -9,7 +9,7 @@ import sys
 from PyQt6 import uic, QtCore, QtWidgets
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QIcon, QPixmap, QPainter
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from PyQt6.QtWidgets import QWidget, QFrame
 from PyQt6.QtQuickWidgets import QQuickWidget
 import threading
@@ -34,15 +34,10 @@ from Widgets.animatedToggle import AnimatedToggle
 
 def Gauge(gaugeType):
     """QWidget
-    This function creates a full gauge widget with the specified maximum value, current value, and unit.
-
-    Args:
-    - maxValue: The maximum value of the gauge.
-    - value: The current value of the gauge.
-    - unit: The unit of the gauge.
+    This function creates gauge widgest of types RPM, Speed, Fuel and Coolant.
 
     Returns:
-    - A QQuickWidget object representing the full gauge widget.
+    - A QQuickWidget object representing the gauge widget.
     """
 
     RPM_GaugeQML = os.path.join(current_dir, "../QMLWidgets/Full_Gauge/RPMGauge.qml")
@@ -174,6 +169,39 @@ class ICWidget(Base, Form):
         self.rightIndicatorBtn.toggled.connect(self.rightIndicatorBtnClicked)
         self.hazardBtn.toggled.connect(self.hazardBtnClicked)
 
+        self.Playback = CAN_playback()
+        self.Playback_connections()
+
+    def Playback_connections(self):
+        self.Playback.speedUpdate.connect(self.set_Vehicle_Speed)
+        self.Playback.gearUpdate.connect(self.playback_set_Vehicle_Gear)
+        self.Playback.engineSpeedUpdate.connect(self.set_Vehicle_RPM)
+        self.Playback.indicatorUpdate.connect(self.playback_set_Vehicle_Indicators)
+
+    def playback_set_Vehicle_Gear(self, gear):
+        if gear == "P":
+            self.parkBtn.setChecked(True)
+        if gear == "D":
+            self.driveBtn.setChecked(True)
+        if gear == "R":
+            self.reverseBtn.setChecked(True)
+        if gear == "N":
+            self.neutralBtn.setChecked(True)
+
+    def playback_set_Vehicle_Indicators(self, indicator):
+        if indicator == "HazardOn":
+            self.hazardBtn.setChecked(True)
+        elif indicator == "HazardOff":
+            self.hazardBtn.setChecked(False)
+        elif indicator == "LeftBlinkerOn":
+            self.leftIndicatorBtn.setChecked(True)
+        elif indicator == "LeftBlinkerOff":
+            self.leftIndicatorBtn.setChecked(False)
+        elif indicator == "RightBlinkerOn":
+            self.rightIndicatorBtn.setChecked(True)
+        elif indicator == "RightBlinkerOff":
+            self.rightIndicatorBtn.setChecked(False)
+
     def set_Vehicle_Speed(self, speed):
         self.Speed_slider.setValue(speed)
 
@@ -223,7 +251,8 @@ class ICWidget(Base, Form):
         Updates the fuel level monitor with the current fuel level value.
         """
         fuelLevel = int(self.fuelLevel_slider.value())
-        self.Fuel_Gauge.rootObject().setProperty('value', fuelLevel/100)
+        FuelGaugeLevel = fuelLevel / 100
+        self.Fuel_Gauge.rootObject().setProperty('value', FuelGaugeLevel)
         print(self.Fuel_Gauge.rootObject().property('value'))
         try:
             self.kuksa_client.set(self.IC.fuelLevel, str(fuelLevel))
@@ -327,13 +356,26 @@ class ICWidget(Base, Form):
 
     def handle_Script_toggle(self):
         if config.file_playback_enabled():
-            can_tool = CAN_playback()
             if self.Script_toggle.isChecked():
-                can_tool_thread = threading.Thread(
-                    target=can_tool.playback_messages)
-                can_tool_thread.start()
-            else:
-                can_tool.stop()
+                # start the playback thread
+                self.thread = QThread()
+                self.Playback.moveToThread(self.thread)
+                self.thread.started.connect(self.Playback.playback_messages)
+                self.thread.start()
+                # hide sliders
+                self.Speed_slider.hide()
+                self.RPM_slider.hide()
+                # set default values for coolent and fuel
+                self.coolantTemp_slider.setValue(90)
+                self.fuelLevel_slider.setValue(50)
+
+            elif not self.Script_toggle.isChecked():
+                self.Playback.stop()
+                self.thread.quit()
+                self.thread.wait()
+
+                self.Speed_slider.show()
+                self.RPM_slider.show()
 
         else:
             if self.Script_toggle.isChecked():

@@ -16,7 +16,9 @@
 
 import os
 import platform
+import can
 from configparser import ConfigParser
+import logging
 
 python_version = f"python{'.'.join(platform.python_version_tuple()[:2])}"
 
@@ -58,9 +60,17 @@ config_path = next((path for path, exists in CONFIG_PATHS.items() if exists), No
 if config_path:
     config.read(config_path)
 
+PLAYBACK_FILE_PATHS = check_paths(
+    config.get('default', 'file-playback-path', fallback=None),
+    "/home/agl-driver/can_messages.txt",
+    "/etc/agl-demo-control-panel/can_messages.txt",
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../assets/can_messages.txt"))
+)
+
 CA_PATH = next((path for path, exists in CA_PATHS.items() if exists), None)
 WS_TOKEN = next((path for path, exists in WS_TOKEN_PATHS.items() if exists), None)
 GRPC_TOKEN = next((path for path, exists in GRPC_TOKEN_PATHS.items() if exists), None)
+PLAYBACK_FILE = next((path for path, exists in PLAYBACK_FILE_PATHS.items() if exists), None)
 
 KUKSA_CONFIG = {}
 KUKSA_TOKEN = None
@@ -154,6 +164,37 @@ def steering_wheel_enabled():
 def file_playback_enabled():
     return config.getboolean('default', 'file-playback-enabled', fallback=True)
 
+def get_playback_file():
+    if PLAYBACK_FILE is not None:
+        return PLAYBACK_FILE
+    else:
+        # save file in project baseDir/Scripts/can_messages.txt
+        with open(os.path.join(os.path.dirname(__file__), "can_messages.txt"), "w") as file:
+            file.write("")
+        # update config.ini
+        config.set('default', 'file-playback-path', os.path.join(os.path.dirname(__file__), "can_messages.txt"))
+        with open(USER_CONFIG_PATH, 'w') as configfile:
+            config.write(configfile)
+            
+        return os.path.join(os.path.dirname(__file__), "can_messages.txt")
+        
+# Function to get the can interface name from config.ini
+def get_can_interface():
+    print(config.get('default', 'can-interface', fallback=None))
+    return config.get('default', 'can-interface', fallback=None)
+
+# function to check if can interface is enabled or not
+def can_interface_enabled():
+    can_interface = get_can_interface()
+    if can_interface is not None:
+        try:
+            # check if an interface by the name exists
+            can.interface.Bus(interface='socketcan', channel=can_interface)
+            return True
+        except Exception as e:
+            logging.error(f"Error: {e}")
+            return False
+    return False
 
 if not config.has_section('vss-server'):
     config.add_section('vss-server')

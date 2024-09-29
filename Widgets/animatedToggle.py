@@ -6,6 +6,7 @@ import sys
 from PyQt6.QtGui import QColor, QPainter, QPainterPath, QBrush
 from PyQt6.QtCore import pyqtProperty, QPropertyAnimation, QPoint, QEasingCurve
 from PyQt6.QtWidgets import QApplication, QCheckBox
+from PyQt6.QtCore import QTimer
 
 
 class AnimatedToggle(QCheckBox):
@@ -117,6 +118,24 @@ class AnimatedToggle(QCheckBox):
 
     def hitButton(self, pos: QPoint):
         return self.contentsRect().contains(pos)
+    
+    # write a function to show an error, take color as input and change the color of the toggle switch for a few seconds while wiggling the switch
+    def showError(self):
+        # change the color of the toggle switch
+        self._bg_color = QColor("#FF0000")
+        # keep the switch in the off position
+        self.setChecked(False)
+        # wiggle the switch
+        for anim in [self.create_animation, self.create_bg_color_animation]:
+            animation = anim(False)
+            animation.start()
+        # reset the color after a few seconds
+        QTimer.singleShot(3000, self.resetColor)
+
+    def resetColor(self):
+        self._bg_color = QColor("#965D62")
+        self.update_pos_color(self.isChecked())
+        
 
     def paintEvent(self, event):
         """
@@ -138,7 +157,6 @@ class AnimatedToggle(QCheckBox):
 
         border_radius = self.height() / 2
         toggle_width = self.height() * 2
-        toggle_margin = self.height() * 0.3
         circle_size = self.height() * 0.8
 
         if self.circle_pos is None:
