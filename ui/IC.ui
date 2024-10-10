@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
   <property name="styleSheet">
    <string notr="true">*{
 	border: none;
@@ -44,58 +47,58 @@ QPushButton:pressed {
 QSlider::groove:horizontal {
     background-color: #131313 ; /* black */
     border: 1px solid #6C6C85 ; /* pastel purple */
-    height: 28px;
-    border-radius: 8px;
+    height: 40px;
+    border-radius: 20px;
 }
 
 QSlider::sub-page:horizontal {
     background-color: #4BD7D6 ; /* light blue */
-    height: 28px;
-    border-radius: 5px;
+    border: 1px solid #6C6C85 ; /* pastel purple */
+    height: 36px;
+    margin-right: -20px;
+    border-radius: 18px;
 }
 
 QSlider::handle:horizontal {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
         stop:0 #eee, stop:1 #ccc);
     border: 1px solid #777;
-    width: 20px;
-    margin-top: -2px;
-    margin-bottom: -2px;
-    border-radius: 8px;
-}
-
-QSlider::sub-page:vertical {
-    background-color: #131313 ; /* black */
-    height: 20px;
     width: 28px;
-    margin: 4px;
-	border: 1px solid #6C6C85 ; /* pastel purple */
-    border-radius: 8px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+	margin-left: 5px;
+	margin-right: 5px;
+    border-radius: 15px;
 }
 
 QSlider::groove:vertical {
-    border-radius: 8px;
-    width: 28px;
-    margin: 4px;
+    background-color: #4BD7D6 ; /* light blue */
 	border: 1px solid #6C6C85 ; /* pastel purple */
-	background-color: #4BD7D6 ; /* light blue */ 
-}
-QSlider::groove:vertical:hover {
-	background-color: rgb(55, 62, 76);
-}
-QSlider::handle:vertical {
-    background-color: #d5d5d5;
-    height: 15px;
-    width: 20px;
-	border-radius: 5px;
-}
-QSlider::handle:vertical:hover {
-    background-color: #6C6C85 ; /* pastel purple */
-}
-QSlider::handle:vertical:pressed {
-    background-color: #4BD7D6 ; /* light blue */ 
+    width: 40px;
+    border-radius: 20px;
 }
 
+QSlider::sub-page:vertical {
+    border: 1px solid #6C6C85; /* pastel purple */
+    background-color: #131313; /* black */
+    width: 36px;
+    margin-top: 0px; /* Adjusted for better alignment */
+    margin-bottom: -20px; /* Space below the sub-page */
+    border-radius: 18px;
+}
+
+QSlider::handle:vertical {
+    height: 28px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #eee, stop:1 #ccc);
+    border: 1px solid #777;
+    width: 28px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+	margin-left: 5px;
+	margin-right: 5px;
+    border-radius: 15px;
+}
 
 QScrollBar:horizontal {
         min-width: 240px;
@@ -165,7 +168,27 @@ QLCDNumber {
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0" rowspan="2">
+      <item row="0" column="0">
+       <widget class="QDockWidget" name="TirePressureDock">
+        <property name="floating">
+         <bool>false</bool>
+        </property>
+        <property name="features">
+         <set>QDockWidget::NoDockWidgetFeatures</set>
+        </property>
+        <widget class="QWidget" name="dockWidgetContents">
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="TirePressure" name="TirePressure" native="true"/>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item row="0" column="1" rowspan="2">
        <widget class="QFrame" name="frame">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -183,10 +206,10 @@ QLCDNumber {
          <enum>QFrame::StyledPanel</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Sunken</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
-         <item row="2" column="0">
+         <item row="2" column="0" colspan="2">
           <widget class="QFrame" name="frame_1">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -247,27 +270,6 @@ QLCDNumber {
               </property>
              </widget>
             </item>
-            <item row="4" column="3" alignment="Qt::AlignHCenter|Qt::AlignTop">
-             <widget class="QLabel" name="label_4">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="font">
-               <font>
-                <family>Open Sans</family>
-                <weight>75</weight>
-                <italic>true</italic>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Speed (Kmph)</string>
-              </property>
-             </widget>
-            </item>
             <item row="2" column="3">
              <widget class="QWidget" name="Speed_Gauge_Placeholder" native="true">
               <property name="sizePolicy">
@@ -278,27 +280,6 @@ QLCDNumber {
               </property>
               <property name="autoFillBackground">
                <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="4" alignment="Qt::AlignHCenter|Qt::AlignTop">
-             <widget class="QLabel" name="label_5">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="font">
-               <font>
-                <family>Open Sans</family>
-                <weight>75</weight>
-                <italic>true</italic>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Engine RPM</string>
               </property>
              </widget>
             </item>
@@ -374,7 +355,7 @@ QLCDNumber {
                <enum>QFrame::Raised</enum>
               </property>
               <layout class="QGridLayout" name="gridLayout_2">
-               <item row="1" column="4">
+               <item row="1" column="3">
                 <widget class="QPushButton" name="rightIndicatorBtn">
                  <property name="text">
                   <string/>
@@ -391,39 +372,24 @@ QLCDNumber {
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
-                <spacer name="horizontalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+               <item row="0" column="2" colspan="2">
+                <widget class="QPushButton" name="hazardBtn">
+                 <property name="text">
+                  <string/>
                  </property>
-                 <property name="sizeType">
-                  <enum>QSizePolicy::Fixed</enum>
+                 <property name="icon">
+                  <iconset resource="../assets/res.qrc">
+                   <normaloff>:/Images/Images/hazard.png</normaloff>:/Images/Images/hazard.png</iconset>
                  </property>
-                 <property name="sizeHint" stdset="0">
+                 <property name="iconSize">
                   <size>
-                   <width>20</width>
-                   <height>20</height>
+                   <width>60</width>
+                   <height>60</height>
                   </size>
                  </property>
-                </spacer>
+                </widget>
                </item>
-               <item row="1" column="3">
-                <spacer name="horizontalSpacer_4">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeType">
-                  <enum>QSizePolicy::Fixed</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="1" column="0">
+               <item row="1" column="2">
                 <widget class="QPushButton" name="leftIndicatorBtn">
                  <property name="acceptDrops">
                   <bool>false</bool>
@@ -452,27 +418,36 @@ QLCDNumber {
                  </property>
                 </widget>
                </item>
-               <item row="1" column="2">
-                <widget class="QPushButton" name="hazardBtn">
-                 <property name="text">
-                  <string/>
+               <item row="0" column="1" rowspan="2">
+                <spacer name="horizontalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
                  </property>
-                 <property name="icon">
-                  <iconset resource="../assets/res.qrc">
-                   <normaloff>:/Images/Images/hazard.png</normaloff>:/Images/Images/hazard.png</iconset>
-                 </property>
-                 <property name="iconSize">
+                 <property name="sizeHint" stdset="0">
                   <size>
-                   <width>60</width>
-                   <height>60</height>
+                   <width>40</width>
+                   <height>20</height>
                   </size>
                  </property>
-                </widget>
+                </spacer>
+               </item>
+               <item row="0" column="4" rowspan="2">
+                <spacer name="horizontalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
               </layout>
              </widget>
             </item>
-            <item row="1" column="0" rowspan="4" colspan="2">
+            <item row="1" column="0" rowspan="4" colspan="2" alignment="Qt::AlignHCenter">
              <widget class="QFrame" name="coolant_gauge_frame">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -499,7 +474,7 @@ QLCDNumber {
                <property name="bottomMargin">
                 <number>4</number>
                </property>
-               <item row="1" column="1">
+               <item row="1" column="1" alignment="Qt::AlignHCenter">
                 <widget class="QSlider" name="coolantTemp_slider">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -513,24 +488,23 @@ QLCDNumber {
                    <height>0</height>
                   </size>
                  </property>
+                 <property name="layoutDirection">
+                  <enum>Qt::LeftToRight</enum>
+                 </property>
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_2">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
+                 <property name="invertedAppearance">
+                  <bool>false</bool>
                  </property>
-                 <property name="text">
-                  <string/>
+                 <property name="invertedControls">
+                  <bool>false</bool>
                  </property>
-                 <property name="pixmap">
-                  <pixmap resource="../assets/res.qrc">:/Carbon_Icons/carbon_icons/temperature--water.svg</pixmap>
+                 <property name="tickPosition">
+                  <enum>QSlider::NoTicks</enum>
+                 </property>
+                 <property name="tickInterval">
+                  <number>0</number>
                  </property>
                 </widget>
                </item>
@@ -553,7 +527,7 @@ QLCDNumber {
               </layout>
              </widget>
             </item>
-            <item row="1" column="6" rowspan="4" alignment="Qt::AlignRight">
+            <item row="1" column="6" rowspan="4" alignment="Qt::AlignHCenter">
              <widget class="QFrame" name="fuel_gauge_frame">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -571,7 +545,7 @@ QLCDNumber {
                <property name="bottomMargin">
                 <number>4</number>
                </property>
-               <item row="1" column="0" alignment="Qt::AlignRight">
+               <item row="1" column="0" alignment="Qt::AlignHCenter">
                 <widget class="QSlider" name="fuelLevel_slider">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -590,6 +564,9 @@ QLCDNumber {
                    <kerning>true</kerning>
                   </font>
                  </property>
+                 <property name="autoFillBackground">
+                  <bool>false</bool>
+                 </property>
                  <property name="sliderPosition">
                   <number>0</number>
                  </property>
@@ -604,33 +581,6 @@ QLCDNumber {
                  </property>
                  <property name="tickPosition">
                   <enum>QSlider::NoTicks</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1" alignment="Qt::AlignRight">
-                <widget class="QLabel" name="label_3">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>12</pointsize>
-                  </font>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::NoFrame</enum>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="pixmap">
-                  <pixmap resource="../assets/res.qrc">:/Carbon_Icons/carbon_icons/rain-drop.svg</pixmap>
-                 </property>
-                 <property name="scaledContents">
-                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
@@ -656,72 +606,7 @@ QLCDNumber {
            </layout>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QFrame" name="header_frame">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout">
-            <item>
-             <widget class="QFrame" name="frame_6">
-              <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_3">
-               <item>
-                <spacer name="horizontalSpacer_6">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item alignment="Qt::AlignRight">
-             <widget class="QLabel" name="label_6">
-              <property name="font">
-               <font>
-                <pointsize>18</pointsize>
-                <weight>75</weight>
-                <italic>true</italic>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Demo Mode</string>
-              </property>
-             </widget>
-            </item>
-            <item alignment="Qt::AlignRight">
-             <widget class="QCheckBox" name="demoToggle">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="4" column="0" alignment="Qt::AlignBottom">
+         <item row="4" column="0" colspan="2">
           <widget class="QFrame" name="gearSelector">
            <property name="minimumSize">
             <size>
@@ -740,6 +625,9 @@ QLCDNumber {
              <spacer name="horizontalSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Expanding</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -911,6 +799,9 @@ QLCDNumber {
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>168</width>
@@ -918,6 +809,115 @@ QLCDNumber {
                </size>
               </property>
              </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <widget class="QFrame" name="header_frame">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QFrame" name="frame_6">
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
+               <item>
+                <widget class="QPushButton" name="TirePressureBtn">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>50</width>
+                   <height>50</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Open Sans</family>
+                   <pointsize>20</pointsize>
+                   <weight>75</weight>
+                   <italic>false</italic>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../assets/res.qrc">
+                   <normaloff>:/Images/Images/tire-pressure.svg</normaloff>:/Images/Images/tire-pressure.svg</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>50</width>
+                   <height>50</height>
+                  </size>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_6">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignRight">
+             <widget class="QLabel" name="label_6">
+              <property name="font">
+               <font>
+                <pointsize>18</pointsize>
+                <weight>75</weight>
+                <italic>true</italic>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Demo Mode</string>
+              </property>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignRight">
+             <widget class="QCheckBox" name="demoToggle">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -930,6 +930,14 @@ QLCDNumber {
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TirePressure</class>
+   <extends>QWidget</extends>
+   <header>Widgets/TirePressure</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../assets/res.qrc"/>
  </resources>

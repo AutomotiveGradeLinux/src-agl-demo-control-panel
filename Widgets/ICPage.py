@@ -10,7 +10,7 @@ from PyQt6 import uic, QtCore, QtWidgets
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QIcon, QPixmap, QPainter
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
-from PyQt6.QtWidgets import QWidget, QFrame
+from PyQt6.QtWidgets import QWidget, QFrame, QDockWidget
 from PyQt6.QtQuickWidgets import QQuickWidget
 import threading
 
@@ -40,10 +40,14 @@ def Gauge(gaugeType):
     - A QQuickWidget object representing the gauge widget.
     """
 
-    RPM_GaugeQML = os.path.join(current_dir, "../QMLWidgets/Full_Gauge/RPMGauge.qml")
-    Speed_GaugeQML = os.path.join(current_dir, "../QMLWidgets/Full_Gauge/SpeedGauge.qml")
-    Fuel_GaugeQML = os.path.join(current_dir, "../QMLWidgets/Half_Gauge/FuelGauge.qml")
-    Coolant_GaugeQML = os.path.join(current_dir, "../QMLWidgets/Half_Gauge/CoolantGauge.qml")
+    RPM_GaugeQML = os.path.join(
+        current_dir, "../QMLWidgets/Full_Gauge/RPMGauge.qml")
+    Speed_GaugeQML = os.path.join(
+        current_dir, "../QMLWidgets/Full_Gauge/SpeedGauge.qml")
+    Fuel_GaugeQML = os.path.join(
+        current_dir, "../QMLWidgets/Half_Gauge/FuelGauge.qml")
+    Coolant_GaugeQML = os.path.join(
+        current_dir, "../QMLWidgets/Half_Gauge/CoolantGauge.qml")
 
     gauge = QQuickWidget()
     if gaugeType == "RPM":
@@ -57,10 +61,13 @@ def Gauge(gaugeType):
 
     elif gaugeType == "Coolant":
         gauge.setSource(QtCore.QUrl(Coolant_GaugeQML))
-        
+
     gauge.setResizeMode(QQuickWidget.ResizeMode.SizeRootObjectToView)
-    
+    gauge.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding,
+                        QtWidgets.QSizePolicy.Policy.Expanding)
+
     return gauge
+
 
 class IC_Paths():
     def __init__(self):
@@ -72,6 +79,7 @@ class IC_Paths():
         self.fuelLevel = "Vehicle.Powertrain.FuelSystem.RelativeLevel"
         self.coolantTemp = "Vehicle.Powertrain.CombustionEngine.ECT"
         self.selectedGear = "Vehicle.Powertrain.Transmission.SelectedGear"
+
 
 class ICWidget(Base, Form):
     """
@@ -100,7 +108,8 @@ class ICWidget(Base, Form):
 
         self.Frame_1 = self.findChild(QWidget, "frame_1")
         self.Fuel_Gauge_Frame = self.findChild(QFrame, "fuel_gauge_frame")
-        self.Coolant_Gauge_Frame = self.findChild(QFrame, "coolant_gauge_frame")
+        self.Coolant_Gauge_Frame = self.findChild(
+            QFrame, "coolant_gauge_frame")
 
         self.Script_toggle = AnimatedToggle()
 
@@ -125,7 +134,8 @@ class ICWidget(Base, Form):
 
         self.driveGroupBtns.buttonClicked.connect(self.driveBtnClicked)
 
-        Speed_Gauge_Placeholder = self.findChild(QWidget, "Speed_Gauge_Placeholder")
+        Speed_Gauge_Placeholder = self.findChild(
+            QWidget, "Speed_Gauge_Placeholder")
         self.Speed_Gauge = Gauge("Speed")
         self.Frame_1.layout().replaceWidget(Speed_Gauge_Placeholder, self.Speed_Gauge)
 
@@ -133,7 +143,8 @@ class ICWidget(Base, Form):
         self.Speed_slider.setMinimum(0)
         self.Speed_slider.setMaximum(240)
 
-        RPM_Gauge_Placeholder = self.findChild(QWidget, "RPM_Gauge_Placeholder")
+        RPM_Gauge_Placeholder = self.findChild(
+            QWidget, "RPM_Gauge_Placeholder")
         self.RPM_Gauge = Gauge("RPM")
         self.Frame_1.layout().replaceWidget(RPM_Gauge_Placeholder, self.RPM_Gauge)
 
@@ -141,26 +152,23 @@ class ICWidget(Base, Form):
         self.RPM_slider.setMinimum(0)
         self.RPM_slider.setMaximum(8000)
 
-        fuel_Gauge_Placeholder = self.findChild(QWidget, "fuel_Gauge_Placeholder")
+        fuel_Gauge_Placeholder = self.findChild(
+            QWidget, "fuel_Gauge_Placeholder")
         self.Fuel_Gauge = Gauge("Fuel")
-        self.Fuel_Gauge_Frame.layout().replaceWidget(fuel_Gauge_Placeholder, self.Fuel_Gauge)
+        self.Fuel_Gauge_Frame.layout().replaceWidget(
+            fuel_Gauge_Placeholder, self.Fuel_Gauge)
 
-        coolant_Gauge_Placeholder = self.findChild(QWidget, "coolant_Gauge_Placeholder")
+        coolant_Gauge_Placeholder = self.findChild(
+            QWidget, "coolant_Gauge_Placeholder")
         self.Coolant_Gauge = Gauge("Coolant")
-        self.Coolant_Gauge_Frame.layout().replaceWidget(coolant_Gauge_Placeholder, self.Coolant_Gauge)
-
-        self.mousePressEvent = lambda event: print("Mouse Pressed")
-        self.mouseReleaseEvent = lambda event: print("Mouse Released")
-
-        self.Coolant_Gauge.mousePressEvent = self.mousePressEvent
-        self.Coolant_Gauge.mouseReleaseEvent = self.mouseReleaseEvent
+        self.Coolant_Gauge_Frame.layout().replaceWidget(
+            coolant_Gauge_Placeholder, self.Coolant_Gauge)
 
         self.coolantTemp_slider.valueChanged.connect(
             self.update_coolantTemp_monitor)
         self.fuelLevel_slider.valueChanged.connect(
             self.update_fuelLevel_monitor)
 
-        self.Script_toggle.clicked.connect(self.handle_Script_toggle)
         self.leftIndicatorBtn.setCheckable(True)
         self.rightIndicatorBtn.setCheckable(True)
         self.hazardBtn.setCheckable(True)
@@ -169,14 +177,36 @@ class ICWidget(Base, Form):
         self.rightIndicatorBtn.toggled.connect(self.rightIndicatorBtnClicked)
         self.hazardBtn.toggled.connect(self.hazardBtnClicked)
 
-        self.Playback = CAN_playback()
-        self.Playback_connections()
+        self.Script_toggle.clicked.connect(self.handle_Script_toggle)
+
+        try:
+            self.Playback = CAN_playback()
+            self.Playback_connections()
+        except Exception as e:
+            logging.error(f"Error creating playback object {e}")
+
+        self.TirePressureDock = self.findChild(QDockWidget, "TirePressureDock")
+        self.TirePressureBtn = self.findChild(
+            QtWidgets.QPushButton, "TirePressureBtn")
+        self.TirePressureBtn.clicked.connect(self.toggle_TirePressureDock)
+
+    def toggle_TirePressureDock(self):
+        if self.TirePressureBtn.isChecked():
+            self.Hide_TirePressure(True)
+        else:
+            self.Hide_TirePressure(False)
+
+    def Hide_TirePressure(self, bool_arg):
+        widthExtended = 0 if bool_arg else 400
+        self.TirePressureDock.setFixedWidth(widthExtended)
+        
 
     def Playback_connections(self):
         self.Playback.speedUpdate.connect(self.set_Vehicle_Speed)
         self.Playback.gearUpdate.connect(self.playback_set_Vehicle_Gear)
         self.Playback.engineSpeedUpdate.connect(self.set_Vehicle_RPM)
-        self.Playback.indicatorUpdate.connect(self.playback_set_Vehicle_Indicators)
+        self.Playback.indicatorUpdate.connect(
+            self.playback_set_Vehicle_Indicators)
 
     def playback_set_Vehicle_Gear(self, gear):
         if gear == "P":
@@ -239,7 +269,8 @@ class ICWidget(Base, Form):
         Updates the coolant temperature monitor with the current coolant temperature value.
         """
         coolantTemp = int(self.coolantTemp_slider.value())
-        self.Coolant_Gauge.rootObject().setProperty('value', coolantTemp/100)
+        gaugeValue = coolantTemp / 100
+        self.Coolant_Gauge.rootObject().setProperty('value', gaugeValue)
         try:
             self.kuksa_client.set(
                 self.IC.coolantTemp, str(coolantTemp), 'value')
@@ -265,7 +296,8 @@ class ICWidget(Base, Form):
         """
         hazardIcon = QPixmap(":/Images/Images/hazard.png")
         painter = QPainter(hazardIcon)
-        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+        painter.setCompositionMode(
+            QPainter.CompositionMode.CompositionMode_SourceIn)
 
         if self.hazardBtn.isChecked():
             color = QtCore.Qt.GlobalColor.yellow
@@ -294,7 +326,8 @@ class ICWidget(Base, Form):
         """
         leftIndicatorIcon = QPixmap(":/Images/Images/left.png")
         painter = QPainter(leftIndicatorIcon)
-        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+        painter.setCompositionMode(
+            QPainter.CompositionMode.CompositionMode_SourceIn)
 
         if self.leftIndicatorBtn.isChecked():
             color = QtCore.Qt.GlobalColor.green
@@ -318,7 +351,8 @@ class ICWidget(Base, Form):
         """
         rightIndicatorIcon = QPixmap(":/Images/Images/right.png")
         painter = QPainter(rightIndicatorIcon)
-        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+        painter.setCompositionMode(
+            QPainter.CompositionMode.CompositionMode_SourceIn)
 
         if self.rightIndicatorBtn.isChecked():
             color = QtCore.Qt.GlobalColor.green
@@ -356,15 +390,28 @@ class ICWidget(Base, Form):
 
     def handle_Script_toggle(self):
         if config.file_playback_enabled():
+            if not config.can_interface_enabled():
+                self.Script_toggle.showError()
+                self.Script_toggle.setChecked(False)
+                return
+            try:
+                self.Playback = CAN_playback()
+                self.Playback_connections()
+            except Exception as e:
+                self.Script_toggle.showError()
+                logging.error(f"Error creating playback object {e}")
+                return
+
             if self.Script_toggle.isChecked():
                 # start the playback thread
                 self.thread = QThread()
                 self.Playback.moveToThread(self.thread)
                 self.thread.started.connect(self.Playback.playback_messages)
                 self.thread.start()
-                # hide sliders
+                # hide sliders from the layout, their space will be taken by the playback widgets
                 self.Speed_slider.hide()
                 self.RPM_slider.hide()
+
                 # set default values for coolent and fuel
                 self.coolantTemp_slider.setValue(90)
                 self.fuelLevel_slider.setValue(50)
@@ -447,6 +494,7 @@ class ICWidget(Base, Form):
                 logging.error(f"Error sending values to kuksa {e}")
         else:
             print("Unknown button checked!")
+
 
 class AccelerationFns():
     def calculate_speed(time, acceleration) -> int:

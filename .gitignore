@@ -4,5 +4,5 @@ map.html
 test/
 control-panel/
 res_rc.py
-Scripts/can_messages.txt
 Scripts/agl-vcar.dbc
+assets/can_messages.txt

@@ -1,7 +1,8 @@
 import os
 import sys
 from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QWidget, QPushButton
+from PyQt6.QtWidgets import QPushButton
+from PyQt6.QtWidgets import QApplication, QWidget
 import requests
 from urllib.parse import urljoin
 

@@ -119,7 +119,7 @@ class KuksaClient(QThread):
         """
         
         if self.client is None:
-            #logging.error("Kuksa client is None, try reconnecting")
+            logging.error("Kuksa client is None, try reconnecting")
             return
 
         if not self.client.checkConnection():
@@ -133,3 +133,34 @@ class KuksaClient(QThread):
         except Exception as e:
             logging.error(f"Error sending values to kuksa {e}")
             threading.Thread(target=self.set_instance).start()
+
+    def get(self, path=None):
+        """
+        Gets VSS value.
+
+        Parameters:
+        -----------
+        path : str
+            The VSS signal path.
+
+        Returns:
+        --------
+        Any
+            The value of the VSS signal.
+        """
+        
+        if self.client is None:
+            logging.error("Kuksa client is None, try reconnecting")
+            return
+
+        if not self.client.checkConnection():
+            logging.error("Client is not connected, try reconnecting")
+            threading.Thread(target=self.set_instance).start()
+            return
+
+        try:
+            return self.client.getValue(path)
+        except Exception as e:
+            logging.error(f"Error getting value from kuksa {e}")
+            threading.Thread(target=self.set_instance).start()
+            return None

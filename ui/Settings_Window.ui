@@ -175,7 +175,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLabel" name="label_12">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -190,7 +190,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLabel" name="label">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -205,7 +205,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLabel" name="label_20">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
           </font>
          </property>
          <property name="text">
@@ -217,7 +217,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLabel" name="label_11">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -245,7 +245,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLineEdit" name="CA_File">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
           </font>
          </property>
         </widget>
@@ -254,7 +254,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLineEdit" name="Auth_Token">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
           </font>
          </property>
         </widget>
@@ -263,7 +263,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLabel" name="label_16">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
           </font>
          </property>
          <property name="text">
@@ -275,7 +275,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLabel" name="label_13">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -290,7 +290,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLabel" name="label_21">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
           </font>
          </property>
          <property name="text">
@@ -302,7 +302,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLineEdit" name="IPAddrInput">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
           </font>
          </property>
          <property name="placeholderText">
@@ -334,7 +334,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLineEdit" name="PortInput">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
           </font>
          </property>
         </widget>
@@ -343,7 +343,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLabel" name="label_17">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
           </font>
          </property>
          <property name="text">
@@ -355,7 +355,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLineEdit" name="TLS_Server_Name">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
           </font>
          </property>
         </widget>
@@ -364,7 +364,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLabel" name="IPAddr">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
           </font>
          </property>
          <property name="text">
@@ -426,7 +426,7 @@ QCheckBox:indicator:disabled {
          </property>
          <property name="font">
           <font>
-           <pointsize>16</pointsize>
+           <pointsize>18</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -451,7 +451,7 @@ QCheckBox:indicator:disabled {
         <widget class="QPushButton" name="reconnectBtn">
          <property name="font">
           <font>
-           <pointsize>16</pointsize>
+           <pointsize>18</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -506,7 +506,7 @@ QCheckBox:indicator:disabled {
         <widget class="QLabel" name="status">
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>18</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
@@ -558,7 +558,7 @@ QCheckBox:indicator:disabled {
      <widget class="QLabel" name="label_19">
       <property name="font">
        <font>
-        <pointsize>16</pointsize>
+        <pointsize>18</pointsize>
         <weight>75</weight>
         <italic>true</italic>
         <bold>true</bold>

@@ -6,14 +6,17 @@
 import os
 import sys
 from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QListWidget, QSlider, QPushButton
+from PyQt6.QtWidgets import QApplication, QFrame, QSlider, QPushButton, QWidget
+from PyQt6 import QtWidgets
+from PyQt6.QtQuickWidgets import QQuickWidget
+from PyQt6.QtQuick import QQuickItem
+from PyQt6.QtCore import QUrl
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # ========================================
 
 sys.path.append(os.path.dirname(current_dir))
-
 
 Form, Base = uic.loadUiType(os.path.join(current_dir, "../ui/HVAC.ui"))
 
@@ -29,14 +32,22 @@ class HVAC_Paths():
         self.rightTemp = "Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature"
         self.rightFanSpeed = "Vehicle.Cabin.HVAC.Station.Row1.Passenger.FanSpeed"
 
-        # temperatureList contains values from 32 to 16
-        self.temperatureList = [str(i) + "°C" for i in range(32, 15, -1)]
+def TumblerWidget():
+    """QWidget for controlling HVAC Temperature."""
+    
+    TumblerQML = os.path.join(current_dir, "../QMLWidgets/Temp_Tumbler/TempTumbler.qml")
 
+    TumblerWidget = QQuickWidget()
+    TumblerWidget.setSource(QUrl.fromLocalFile(TumblerQML))
+    TumblerWidget.setResizeMode(QQuickWidget.ResizeMode.SizeRootObjectToView)
+    TumblerWidget.setSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+
+    return TumblerWidget
 
 class HVACWidget(Base, Form):
     """
     A widget for controlling HVAC settings.
-
+    
     Inherits from Base and Form.
     """
 
@@ -52,40 +63,29 @@ class HVACWidget(Base, Form):
         self.setupUi(self)
 
         self.HVAC = HVAC_Paths()
-
         self.kuksa_client = KuksaClient()
 
-        self.leftTempList = self.findChild(QListWidget, "leftTempList")
-        self.leftTempList.addItems(self.HVAC.temperatureList)
-        self.leftTempList.setCurrentRow(0)
-        self.leftTempList.itemClicked.connect(self.leftTempListClicked)
-        self.leftTempList.itemSelectionChanged.connect(
-            self.leftTempListClicked)
-        self.leftTempList.wheelEvent = lambda event: None
+        leftFrame = self.findChild(QFrame, "leftFrame")
+        
+        # Create left temperature tumbler
+        self.LeftTempTumbler = TumblerWidget()
+        
+        # Connect the left tumbler signal to the handler
+        self.LeftTempTumbler.rootObject().valueChanged.connect(self.onLeftTempChanged)
 
-        self.rightTempList = self.findChild(QListWidget, "rightTempList")
-        self.rightTempList.addItems(self.HVAC.temperatureList)
-        self.rightTempList.setCurrentRow(0)
-        self.rightTempList.itemClicked.connect(self.rightTempListClicked)
-        self.rightTempList.itemSelectionChanged.connect(
-            self.rightTempListClicked)
-        self.rightTempList.wheelEvent = lambda event: None
+        # Replace placeholder LeftTemp_Placeholder with the LeftTempTumbler widget
+        leftFrame.layout().replaceWidget(self.findChild(QWidget, "LeftTemp_Placeholder"), self.LeftTempTumbler)
 
-        self.leftTempUp = self.findChild(QPushButton, "leftTempUp")
-        self.leftTempUp.clicked.connect(
-            lambda: self.leftTempList.setCurrentRow(self.leftTempList.currentRow() - 1))
+        rightFrame = self.findChild(QFrame, "rightFrame")
+        
+        # Create right temperature tumbler
+        self.RightTempTumbler = TumblerWidget()
+        
+        # Connect the right tumbler signal to the handler
+        self.RightTempTumbler.rootObject().valueChanged.connect(self.onRightTempChanged)
 
-        self.leftTempDown = self.findChild(QPushButton, "leftTempDown")
-        self.leftTempDown.clicked.connect(
-            lambda: self.leftTempList.setCurrentRow(self.leftTempList.currentRow() + 1))
-
-        self.rightTempUp = self.findChild(QPushButton, "rightTempUp")
-        self.rightTempUp.clicked.connect(
-            lambda: self.rightTempList.setCurrentRow(self.rightTempList.currentRow() - 1))
-
-        self.rightTempDown = self.findChild(QPushButton, "rightTempDown")
-        self.rightTempDown.clicked.connect(
-            lambda: self.rightTempList.setCurrentRow(self.rightTempList.currentRow() + 1))
+        # Replace placeholder RightTemp_Placeholder with the RightTempTumbler widget
+        rightFrame.layout().replaceWidget(self.findChild(QWidget, "RightTemp_Placeholder"), self.RightTempTumbler)
 
         self.leftFanSpeed_slider = self.findChild(
             QSlider, "leftFanSpeed_slider")
@@ -97,28 +97,27 @@ class HVACWidget(Base, Form):
         self.rightFanSpeed_slider.valueChanged.connect(
             self.rightFanSpeed_sliderChanged)
 
-    def leftTempListClicked(self):
-        """
-        Handles the event when an item in the left temperature list is clicked.
-        Sets the corresponding VSS signal to the selected temperature value.
-        """
+    def changeTemperature(self, tumbler_widget, change):
+        """Change tumbler value by incrementing or decrementing."""
+        
+        # use the inc_Value method from the QML object if change is 1 then increment, else decrement
+        # Access the root object of the QML component
+        self.LeftTempTumbler.rootObject().property("inc_Value", change)
 
-        self.setTemperature(self.leftTempList, self.HVAC.leftTemp)
+    def onLeftTempChanged(self, newValue):
+        """Slot to handle changes in left temperature tumbler."""
+        
+        print(f"Left Temperature Tumbler stopped at value: {newValue}°C")
+        self.setTemperature(newValue, self.HVAC.leftTemp)
 
-    def rightTempListClicked(self):
-        """
-        Handles the event when an item in the right temperature list is clicked.
-        Sets the corresponding VSS signal to the selected temperature value.
-        """
+    def onRightTempChanged(self, newValue):
+        """Slot to handle changes in right temperature tumbler."""
+        
+        print(f"Right Temperature Tumbler stopped at value: {newValue}°C")
+        self.setTemperature(newValue, self.HVAC.rightTemp)
 
-        self.setTemperature(self.rightTempList, self.HVAC.rightTemp)
-
-    def setTemperature(self, list_widget, path):
-        item = list_widget.currentItem()
-        if item is not None:
-            list_widget.scrollToItem(item)
-            self.kuksa_client.set(path, item.text()[:-2], "targetValue")
-            print(item.text())
+    def setTemperature(self, temp, path):
+        self.kuksa_client.set(path, str(temp), "targetValue")
 
     def leftFanSpeed_sliderChanged(self):
         """
@@ -140,9 +139,7 @@ class HVACWidget(Base, Form):
         self.kuksa_client.set(self.HVAC.rightFanSpeed, str(value), "targetValue")
         print(value)
 
-
 if __name__ == '__main__':
-    import sys
     app = QApplication(sys.argv)
     w = HVACWidget()
     w.show()

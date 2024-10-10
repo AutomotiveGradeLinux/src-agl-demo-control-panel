@@ -67,6 +67,12 @@ PLAYBACK_FILE_PATHS = check_paths(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../assets/can_messages.txt"))
 )
 
+DBC_FILE_PATHS = check_paths(
+    config.get('default', 'dbc-file-path', fallback=None),
+    "/etc/kuksa-dbc-feeder/agl-vcar.dbc",
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../Scripts/agl-vcar.dbc"))
+)
+
 CA_PATH = next((path for path, exists in CA_PATHS.items() if exists), None)
 WS_TOKEN = next((path for path, exists in WS_TOKEN_PATHS.items() if exists), None)
 GRPC_TOKEN = next((path for path, exists in GRPC_TOKEN_PATHS.items() if exists), None)
@@ -177,7 +183,14 @@ def get_playback_file():
             config.write(configfile)
             
         return os.path.join(os.path.dirname(__file__), "can_messages.txt")
-        
+
+# Function to get the dbc file path from config.ini
+def get_dbc_file():
+    if DBC_FILE_PATHS:
+        return DBC_FILE_PATHS
+    else:
+        raise ValueError("DBC file path not found")
+
 # Function to get the can interface name from config.ini
 def get_can_interface():
     print(config.get('default', 'can-interface', fallback=None))

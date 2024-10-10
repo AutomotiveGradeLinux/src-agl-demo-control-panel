@@ -5,10 +5,11 @@ Item {
     width: 200
     height: 200
 
-    property real value: 80
+    property real value: 0
     property real minValue: 0
     property real maxValue: 120
     property string unit: "°C"
+    property string iconSource: "qrc:/Carbon_Icons/carbon_icons/temperature--water.svg"
 
     property color primaryColor: "#16CCBA"
     property color secondaryColor: "#00000000"
@@ -34,12 +35,12 @@ Item {
             var center = Qt.point(width / 2, height / 2)
             var side = Math.min(width, height)
             var radius = (side - side * 0.25) / 2
-            var startAngle = Math.PI * 2 / 3
-            var fullAngle = Math.PI * 2 / 3
+            var startAngle = Math.PI * 5 / 4
+            var fullAngle = Math.PI * 1 / 2 
             var progressAngle = startAngle + (degree / 270) * fullAngle
 
             ctx.reset()
-            ctx.lineCap = 'square'
+            ctx.lineCap = 'round'
 
             // background arc
             ctx.lineWidth = 25
@@ -86,21 +87,20 @@ Item {
         id: gaugePercentage
         anchors.verticalCenter: gaugeText.verticalCenter
         anchors.left: gaugeText.right
-        text: "%"
+        text: unit
         font.pixelSize: 0.15 * Math.min(root.width, root.height)
         font.bold: true
         color: "#FFFFFF"
     }
 
-    Text {
-        id: gaugeUnit
+    Image {
+        source: iconSource
         anchors.top: gaugeText.bottom
         anchors.horizontalCenter: gaugeText.horizontalCenter
-        
-        text: unit
-        font.pixelSize: 18
-        font.bold: true
-        color: "#FFFFFF" 
+        width: 0.15 * Math.min(root.width, root.height)
+        fillMode: Image.PreserveAspectFit
+        // antialiasing: true
+        antialiasing: true
     }
 
     Behavior on value {

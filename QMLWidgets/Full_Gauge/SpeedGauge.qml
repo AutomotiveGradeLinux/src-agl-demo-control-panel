@@ -94,9 +94,26 @@ Item {
 
         function drawProgress(ctx, center, progress) {
             ctx.lineWidth = 20;
+
+            // Create a linear gradient
+            var gradient = ctx.createLinearGradient(
+                center.x + gaugeRadius * Math.cos(startAngle),
+                center.y + gaugeRadius * Math.sin(startAngle),
+                center.x + gaugeRadius * Math.cos(startAngle + fullAngle),
+                center.y + gaugeRadius * Math.sin(startAngle + fullAngle)
+            );
+
+            // Set gradient stops
+            gradient.addColorStop(0.3, "#00FF00"); // Green color
+            gradient.addColorStop(0.3, primaryColor); // Primary color
+            gradient.addColorStop(0.3, "#FFD700"); // Yellow color
+            gradient.addColorStop(1, "#FF0000"); // Red color
+
             ctx.beginPath();
             ctx.arc(center.x, center.y, gaugeRadius, startAngle, startAngle + (progress / 270) * fullAngle);
-            ctx.strokeStyle = primaryColor;
+
+            // Apply the gradient to the stroke style
+            ctx.strokeStyle = gradient;
             ctx.stroke();
         }
 
@@ -118,17 +135,17 @@ Item {
         }
 
         function drawProgressTick(ctx, center, progress) {
-            
+
             ctx.lineWidth = tickLength * 3
             ctx.strokeStyle = '#FFFFFF'
             ctx.beginPath()
-            
+
             const progressAngle = startAngle + (progress / 270) * fullAngle
             const x1 = center.x + gaugeRadius * Math.cos(progressAngle)
             const y1 = center.y + gaugeRadius * Math.sin(progressAngle)
             const x2 = center.x + (gaugeRadius - tickLength * 1.5) * Math.cos(progressAngle)
             const y2 = center.y + (gaugeRadius - tickLength * 1.5) * Math.sin(progressAngle)
-            
+
             ctx.moveTo(x1, y1)
             ctx.lineTo(x2, y2)
             ctx.stroke()

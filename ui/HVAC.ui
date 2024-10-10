@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>815</width>
-    <height>575</height>
+    <width>950</width>
+    <height>587</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,37 +63,35 @@
     border-radius: 8px;
 }
 
-QSlider::sub-page:vertical {
-    background-color: #131313 ; /* black */
-    height: 20px;
-    width: 28px;
-    margin: 2px;
+QSlider::groove:vertical {
+    background-color: #4BD7D6 ; /* light blue */
 	border: 1px solid #6C6C85 ; /* pastel purple */
-    border-radius: 8px;
+    width: 40px;
+    border-radius: 20px;
 }
 
-QSlider::groove:vertical {
-    border-radius: 8px;
-    width: 28px;
-    margin: 2px;
-	border: 1px solid #6C6C85 ; /* pastel purple */
-	background-color: #4BD7D6 ; /* light blue */ 
+QSlider::sub-page:vertical {
+    border: 1px solid #6C6C85; /* pastel purple */
+    background-color: #131313; /* black */
+    width: 36px;
+    margin-top: 0px; /* Adjusted for better alignment */
+    margin-bottom: -20px; /* Space below the sub-page */
+    border-radius: 18px;
 }
-QSlider::groove:vertical:hover {
-	background-color: rgb(55, 62, 76);
-}
+
 QSlider::handle:vertical {
-    background-color: #d5d5d5;
-    height: 15px;
-    width: 20px;
-	border-radius: 5px;
+    height: 28px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #eee, stop:1 #ccc);
+    border: 1px solid #777;
+    width: 28px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+	margin-left: 5px;
+	margin-right: 5px;
+    border-radius: 15px;
 }
-QSlider::handle:vertical:hover {
-    background-color: #6C6C85 ; /* pastel purple */
-}
-QSlider::handle:vertical:pressed {
-    background-color: #4BD7D6 ; /* light blue */ 
-}
+
 
 
 QScrollBar:horizontal {
@@ -205,23 +203,7 @@ QListWidget::item:hover {
          <enum>QFrame::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="1" column="3" colspan="2">
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Expanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="0" column="1" colspan="5" alignment="Qt::AlignBottom">
+         <item row="0" column="0" colspan="2" alignment="Qt::AlignBottom">
           <widget class="QFrame" name="frame_2">
            <property name="minimumSize">
             <size>
@@ -260,23 +242,7 @@ QListWidget::item:hover {
            </layout>
           </widget>
          </item>
-         <item row="1" column="6">
-          <spacer name="horizontalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Expanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="1" column="1" colspan="2">
+         <item row="1" column="0">
           <widget class="QFrame" name="leftControls">
            <property name="minimumSize">
             <size>
@@ -291,11 +257,11 @@ QListWidget::item:hover {
             <enum>QFrame::Raised</enum>
            </property>
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="1" column="0" colspan="5" alignment="Qt::AlignHCenter">
+            <item row="1" column="0" colspan="4" alignment="Qt::AlignHCenter">
              <widget class="QLabel" name="label">
               <property name="font">
                <font>
-                <pointsize>16</pointsize>
+                <pointsize>18</pointsize>
                 <weight>75</weight>
                 <italic>true</italic>
                 <bold>true</bold>
@@ -306,7 +272,7 @@ QListWidget::item:hover {
               </property>
              </widget>
             </item>
-            <item row="0" column="0" colspan="5">
+            <item row="0" column="0" colspan="4">
              <spacer name="verticalSpacer_7">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -322,197 +288,7 @@ QListWidget::item:hover {
               </property>
              </spacer>
             </item>
-            <item row="2" column="0" colspan="5">
-             <spacer name="verticalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="3" column="0" rowspan="2">
-             <spacer name="horizontalSpacer_6">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="3" column="2" rowspan="2">
-             <spacer name="horizontalSpacer_4">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="3" column="3" rowspan="2">
-             <widget class="QFrame" name="frame_3">
-              <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_5">
-               <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
-                <widget class="QPushButton" name="leftTempUp">
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="../assets/res.qrc">
-                   <normaloff>:/Carbon_Icons/carbon_icons/temperature--frigid.svg</normaloff>:/Carbon_Icons/carbon_icons/temperature--frigid.svg</iconset>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>40</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                <widget class="QListWidget" name="leftTempList">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>152</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>60</width>
-                   <height>152</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>14</pointsize>
-                   <weight>75</weight>
-                   <italic>true</italic>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="focusPolicy">
-                  <enum>Qt::StrongFocus</enum>
-                 </property>
-                 <property name="layoutDirection">
-                  <enum>Qt::LeftToRight</enum>
-                 </property>
-                 <property name="autoFillBackground">
-                  <bool>false</bool>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::NoFrame</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
-                 </property>
-                 <property name="verticalScrollBarPolicy">
-                  <enum>Qt::ScrollBarAlwaysOff</enum>
-                 </property>
-                 <property name="horizontalScrollBarPolicy">
-                  <enum>Qt::ScrollBarAlwaysOff</enum>
-                 </property>
-                 <property name="sizeAdjustPolicy">
-                  <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
-                 </property>
-                 <property name="editTriggers">
-                  <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
-                 </property>
-                 <property name="showDropIndicator" stdset="0">
-                  <bool>false</bool>
-                 </property>
-                 <property name="dragDropMode">
-                  <enum>QAbstractItemView::DragOnly</enum>
-                 </property>
-                 <property name="selectionMode">
-                  <enum>QAbstractItemView::SingleSelection</enum>
-                 </property>
-                 <property name="textElideMode">
-                  <enum>Qt::ElideMiddle</enum>
-                 </property>
-                 <property name="verticalScrollMode">
-                  <enum>QAbstractItemView::ScrollPerPixel</enum>
-                 </property>
-                 <property name="movement">
-                  <enum>QListView::Snap</enum>
-                 </property>
-                 <property name="isWrapping" stdset="0">
-                  <bool>false</bool>
-                 </property>
-                 <property name="resizeMode">
-                  <enum>QListView::Adjust</enum>
-                 </property>
-                 <property name="layoutMode">
-                  <enum>QListView::SinglePass</enum>
-                 </property>
-                 <property name="spacing">
-                  <number>1</number>
-                 </property>
-                 <property name="viewMode">
-                  <enum>QListView::ListMode</enum>
-                 </property>
-                 <property name="uniformItemSizes">
-                  <bool>true</bool>
-                 </property>
-                 <property name="selectionRectVisible">
-                  <bool>true</bool>
-                 </property>
-                 <property name="itemAlignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item alignment="Qt::AlignHCenter|Qt::AlignTop">
-                <widget class="QPushButton" name="leftTempDown">
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="../assets/res.qrc">
-                   <normaloff>:/Carbon_Icons/carbon_icons/temperature--hot.svg</normaloff>:/Carbon_Icons/carbon_icons/temperature--hot.svg</iconset>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>40</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item row="5" column="0" colspan="5">
+            <item row="5" column="0" colspan="4">
              <spacer name="verticalSpacer_5">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -528,23 +304,51 @@ QListWidget::item:hover {
               </property>
              </spacer>
             </item>
-            <item row="3" column="4" rowspan="2">
-             <spacer name="horizontalSpacer_7">
+            <item row="2" column="0" colspan="4">
+             <spacer name="verticalSpacer_3">
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Vertical</enum>
               </property>
               <property name="sizeType">
                <enum>QSizePolicy::Fixed</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
-                <width>40</width>
+                <width>20</width>
                 <height>20</height>
                </size>
               </property>
              </spacer>
             </item>
-            <item row="3" column="1">
+            <item row="3" column="2" rowspan="2">
+             <widget class="QFrame" name="leftFrame">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_5">
+               <item>
+                <widget class="QWidget" name="LeftTemp_Placeholder" native="true">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="3" column="1" alignment="Qt::AlignLeft">
              <widget class="QFrame" name="frame_4">
               <property name="frameShape">
                <enum>QFrame::StyledPanel</enum>
@@ -578,7 +382,7 @@ QListWidget::item:hover {
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>40</width>
+                   <width>60</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -621,23 +425,7 @@ QListWidget::item:hover {
            </layout>
           </widget>
          </item>
-         <item row="1" column="0">
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Expanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="1" column="5">
+         <item row="1" column="1">
           <widget class="QFrame" name="rightControls">
            <property name="minimumSize">
             <size>
@@ -652,7 +440,7 @@ QListWidget::item:hover {
             <enum>QFrame::Raised</enum>
            </property>
            <layout class="QGridLayout" name="gridLayout_3">
-            <item row="6" column="0" colspan="6">
+            <item row="4" column="0" colspan="4">
              <spacer name="verticalSpacer_6">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -668,23 +456,7 @@ QListWidget::item:hover {
               </property>
              </spacer>
             </item>
-            <item row="3" column="5" rowspan="3">
-             <spacer name="horizontalSpacer_8">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="4" column="4">
+            <item row="3" column="2">
              <widget class="QFrame" name="frame_6">
               <property name="frameShape">
                <enum>QFrame::StyledPanel</enum>
@@ -712,7 +484,7 @@ QListWidget::item:hover {
                 <widget class="QSlider" name="rightFanSpeed_slider">
                  <property name="minimumSize">
                   <size>
-                   <width>40</width>
+                   <width>60</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -734,39 +506,22 @@ QListWidget::item:hover {
               </layout>
              </widget>
             </item>
-            <item row="3" column="2" rowspan="3" colspan="2">
-             <spacer name="horizontalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+            <item row="1" column="0" colspan="4" alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_6">
+              <property name="font">
+               <font>
+                <pointsize>18</pointsize>
+                <weight>75</weight>
+                <italic>true</italic>
+                <bold>true</bold>
+               </font>
               </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
+              <property name="text">
+               <string>Right Controls</string>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
+             </widget>
             </item>
-            <item row="3" column="0" rowspan="3">
-             <spacer name="horizontalSpacer_9">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="2" column="0" colspan="6">
+            <item row="2" column="0" colspan="4">
              <spacer name="verticalSpacer_4">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -782,22 +537,7 @@ QListWidget::item:hover {
               </property>
              </spacer>
             </item>
-            <item row="1" column="0" colspan="6" alignment="Qt::AlignHCenter">
-             <widget class="QLabel" name="label_6">
-              <property name="font">
-               <font>
-                <pointsize>16</pointsize>
-                <weight>75</weight>
-                <italic>true</italic>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Right Controls</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" colspan="6">
+            <item row="0" column="0" colspan="4">
              <spacer name="verticalSpacer_8">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -813,8 +553,14 @@ QListWidget::item:hover {
               </property>
              </spacer>
             </item>
-            <item row="4" column="1">
-             <widget class="QFrame" name="frame_5">
+            <item row="3" column="1">
+             <widget class="QFrame" name="rightFrame">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="frameShape">
                <enum>QFrame::StyledPanel</enum>
               </property>
@@ -822,132 +568,8 @@ QListWidget::item:hover {
                <enum>QFrame::Raised</enum>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_7">
-               <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
-                <widget class="QPushButton" name="rightTempUp">
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="../assets/res.qrc">
-                   <normaloff>:/Carbon_Icons/carbon_icons/temperature--frigid.svg</normaloff>:/Carbon_Icons/carbon_icons/temperature--frigid.svg</iconset>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>40</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                <widget class="QListWidget" name="rightTempList">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>152</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>60</width>
-                   <height>152</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>14</pointsize>
-                   <weight>75</weight>
-                   <italic>true</italic>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="focusPolicy">
-                  <enum>Qt::StrongFocus</enum>
-                 </property>
-                 <property name="layoutDirection">
-                  <enum>Qt::LeftToRight</enum>
-                 </property>
-                 <property name="autoFillBackground">
-                  <bool>false</bool>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::NoFrame</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
-                 </property>
-                 <property name="verticalScrollBarPolicy">
-                  <enum>Qt::ScrollBarAlwaysOff</enum>
-                 </property>
-                 <property name="horizontalScrollBarPolicy">
-                  <enum>Qt::ScrollBarAlwaysOff</enum>
-                 </property>
-                 <property name="sizeAdjustPolicy">
-                  <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
-                 </property>
-                 <property name="editTriggers">
-                  <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
-                 </property>
-                 <property name="showDropIndicator" stdset="0">
-                  <bool>false</bool>
-                 </property>
-                 <property name="dragDropMode">
-                  <enum>QAbstractItemView::DragOnly</enum>
-                 </property>
-                 <property name="selectionMode">
-                  <enum>QAbstractItemView::ContiguousSelection</enum>
-                 </property>
-                 <property name="textElideMode">
-                  <enum>Qt::ElideMiddle</enum>
-                 </property>
-                 <property name="verticalScrollMode">
-                  <enum>QAbstractItemView::ScrollPerPixel</enum>
-                 </property>
-                 <property name="movement">
-                  <enum>QListView::Snap</enum>
-                 </property>
-                 <property name="resizeMode">
-                  <enum>QListView::Adjust</enum>
-                 </property>
-                 <property name="layoutMode">
-                  <enum>QListView::SinglePass</enum>
-                 </property>
-                 <property name="spacing">
-                  <number>1</number>
-                 </property>
-                 <property name="viewMode">
-                  <enum>QListView::ListMode</enum>
-                 </property>
-                 <property name="selectionRectVisible">
-                  <bool>true</bool>
-                 </property>
-                 <property name="itemAlignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item alignment="Qt::AlignHCenter|Qt::AlignTop">
-                <widget class="QPushButton" name="rightTempDown">
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="../assets/res.qrc">
-                   <normaloff>:/Carbon_Icons/carbon_icons/temperature--hot.svg</normaloff>:/Carbon_Icons/carbon_icons/temperature--hot.svg</iconset>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>40</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </widget>
+               <item>
+                <widget class="QWidget" name="RightTemp_Placeholder" native="true"/>
                </item>
               </layout>
              </widget>
