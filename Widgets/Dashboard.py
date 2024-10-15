@@ -57,6 +57,7 @@ class Dashboard(Base, Form):
         Dashboard_tiles = (self.DB_IC_Tile,
                            self.DB_HVAC_Tile,
                            self.DB_Steering_Tile,
+                           self.DB_Keypad_Tile,
                            self.DB_Settings_Tile)
 
         DashboardTiles = QtWidgets.QButtonGroup(self)
@@ -72,6 +73,12 @@ class Dashboard(Base, Form):
             if tile == self.DB_Steering_Tile and not config.steering_wheel_enabled():
                 self.DB_Steering_Tile.setEnabled(False)
                 self.DB_Steering_Tile.setStyleSheet("background-color : darkGray; color: gray")
+                enabled = False
+            if tile == self.DB_Keypad_Tile and not config.keypad_enabled():
+                self.DB_Keypad_Tile.setEnabled(False)
+                # hide the keypad tile
+                self.DB_Keypad_Tile.hide()
+                self.DB_Keypad_Tile.setStyleSheet("background-color : darkGray; color: gray")
                 enabled = False
 
             self.set_icon(tile, 90)
@@ -120,8 +127,10 @@ class Dashboard(Base, Form):
             self.parent().setCurrentIndex(2)
         elif tile == self.DB_Steering_Tile:
             self.parent().setCurrentIndex(3)
-        elif tile == self.DB_Settings_Tile:
+        elif tile == self.DB_Keypad_Tile:
             self.parent().setCurrentIndex(4)
+        elif tile == self.DB_Settings_Tile:
+            self.parent().setCurrentIndex(5)
 
         self.tileClickedSignal.emit()
 

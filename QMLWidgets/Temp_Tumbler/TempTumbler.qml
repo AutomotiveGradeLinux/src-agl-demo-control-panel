@@ -5,19 +5,24 @@ import QtQuick.Controls 2.2
 Rectangle {
     width: frame.implicitWidth
     height: frame.implicitHeight
-    
-    // save colors in variables
+
+    // Save colors in variables
     property color backgroundColor: "#131313"
     property color background_alt: "#2A2827"
     property color buttonColor: "#6C6C85"
     property color highlight: "#4BD7D6"
 
-    // store icons from qrc in variables
+    // Store icons from qrc in variables
     property string iconUp: "qrc:/Carbon_Icons/carbon_icons/temperature--frigid.svg"
     property string iconDown: "qrc:/Carbon_Icons/carbon_icons/temperature--hot.svg"
 
-    color: backgroundColor
-    
+    color: "#041F2B"
+    // Remove rectangular border
+    border.color: "#041F2B"
+    border.width: 0
+    anchors.fill: parent
+    anchors.margins: -5
+
     signal valueChanged(int newValue)
 
     FontMetrics {
@@ -40,32 +45,31 @@ Rectangle {
 
     Frame {
         id: frame
-        padding: 0
+        padding: 10
         anchors.centerIn: parent
         anchors.fill: parent
 
         Rectangle {
             anchors.fill: parent
-            color: backgroundColor
-            radius: 10
+            color: "#041F2B"
+            radius: width / 4
         }
 
         Column {
-            spacing: 10
+            spacing: 5
             anchors.fill: parent
 
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.margins: 10
+            anchors.margins: 2
 
             Button {
                 width: parent.width
-                height: parent.height / 6
+                height: parent.height * 1 / 4
 
-                Rectangle {
+                background : Rectangle {
                     width: parent.width
                     height: parent.height
                     color: buttonColor
-                    radius: 10
+                    radius: width / 4
                     
                     Image {
                         source: iconUp
@@ -77,11 +81,10 @@ Rectangle {
                     }
                 }
                 onClicked: {
-                    // if we are at the top of the list, set the index to the last element
+                    // If we are at the top of the list, set the index to the last element
                     if (valueTumbler.currentIndex == 0) {
                         valueTumbler.currentIndex = valueTumbler.model.count - 1;
-                    }
-                    else {
+                    } else {
                         valueTumbler.currentIndex -= 1;
                     }
                 }
@@ -90,8 +93,10 @@ Rectangle {
             Tumbler {
                 id: valueTumbler
                 anchors.horizontalCenter: parent.horizontalCenter
+
                 width: parent.width
-                height: parent.height / 2
+                height: parent.height * 2 / 4
+
                 model: ListModel {
                     ListElement { number: 16 }
                     ListElement { number: 17 }
@@ -118,23 +123,26 @@ Rectangle {
 
                 delegate: delegateComponent
 
-                Rectangle {
+                background : Rectangle {
                     width: parent.width
                     height: parent.height
-                    color: background_alt
-                    radius: 10
+                    color: backgroundColor
+                    border.color: buttonColor
+                    border.width: 2
+                    radius: width / 4
                 }
             }
 
             Button {
+                id: buttonDown
                 width: parent.width
-                height: parent.height / 6
+                height: parent.height * 1 / 4
 
-                Rectangle {
+                background : Rectangle {
                     width: parent.width
                     height: parent.height
                     color: buttonColor
-                    radius: 10
+                    radius: width / 4
                     
                     Image {
                         source: iconDown
@@ -148,8 +156,7 @@ Rectangle {
                 onClicked: {
                     if (valueTumbler.currentIndex == 16) {
                         valueTumbler.currentIndex = 0;
-                    }
-                    else {
+                    } else {
                         valueTumbler.currentIndex += 1;
                     }
                 }

@@ -18,6 +18,7 @@ import sys
 import os
 
 from PyQt6 import uic, QtCore, QtWidgets
+from PyQt6.QtWidgets import QFrame
 from PyQt6.QtWidgets import QApplication, QPushButton, QWidget
 from functools import partial
 from PyQt6 import QtGui
@@ -54,6 +55,9 @@ class MainWindow(Base, Form):
         self.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
 
         # set fullscreen mode if enabled in config.ini
+        if not config.keypad_enabled():
+            self.keypadButton.hide()
+
         if config.fullscreen_mode():
             UI_Handeler.fullscreen(self)
 
@@ -97,6 +101,7 @@ class MainWindow(Base, Form):
                               self.icButton,
                               self.hvacButton,
                               self.steeringCtrlButton,
+                              self.keypadButton,
                               self.settingsBtn)
 
         steering_icon = ":/Images/Images/steering-wheel.svg"
@@ -106,6 +111,10 @@ class MainWindow(Base, Form):
             self.hvacButton.hide()
         if not config.steering_wheel_enabled():
             self.steeringCtrlButton.hide()
+        if not config.keypad_enabled():
+            self.findChild(QFrame, 'keypadFrame').hide()
+            self.keypadButton.hide()
+            
 
         NavigationButtons = QtWidgets.QButtonGroup(self)
         NavigationButtons.setExclusive(True)
@@ -121,9 +130,14 @@ class MainWindow(Base, Form):
 
         self.stackedWidget.currentChanged.connect(self.handleChangedPage)
 
-        self.stackedWidget.setCurrentIndex(0)
-        self.dashboardButton.setChecked(True)
-        UI_Handeler.Hide_Navbar(self, bool_arg=False)
+        if config.keypad_only():
+            self.stackedWidget.setCurrentIndex(4)
+            self.keypadButton.setChecked(True)
+            UI_Handeler.Hide_Navbar(self, bool_arg=False)
+        else:
+            self.stackedWidget.setCurrentIndex(0)
+            self.dashboardButton.setChecked(True)
+            UI_Handeler.Hide_Navbar(self, bool_arg=False)
 
         self.Dashboard = Dashboard()
         self.Dashboard.tileClickedSignal.connect(self.handleTileClicked)
@@ -165,12 +179,12 @@ class MainWindow(Base, Form):
         UI_Handeler.Hide_Navbar(self, hide_navbar)
 
         if self.current_page is not None:
-            if self.current_page != 0 and self.current_page != 4:
+            if self.current_page != 0 and self.current_page != 4 and self.current_page != 5:
                 self.stackedWidget.widget(self.current_page).kuksa_client.stop()
 
         self.current_page = page_index
 
-        if self.current_page != 0 and self.current_page != 4:
+        if self.current_page != 0 and self.current_page != 4 and self.current_page != 5:
             self.stackedWidget.widget(self.current_page).kuksa_client.start()
 
 

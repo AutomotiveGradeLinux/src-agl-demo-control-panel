@@ -6,11 +6,11 @@
 import os
 import sys
 from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QFrame, QSlider, QPushButton, QWidget
+from PyQt6.QtWidgets import QApplication, QFrame, QSlider, QWidget
 from PyQt6 import QtWidgets
 from PyQt6.QtQuickWidgets import QQuickWidget
-from PyQt6.QtQuick import QQuickItem
 from PyQt6.QtCore import QUrl
+from PyQt6.QtCore import QTimer
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -69,7 +69,6 @@ class HVACWidget(Base, Form):
         
         # Create left temperature tumbler
         self.LeftTempTumbler = TumblerWidget()
-        
         # Connect the left tumbler signal to the handler
         self.LeftTempTumbler.rootObject().valueChanged.connect(self.onLeftTempChanged)
 
@@ -96,6 +95,14 @@ class HVACWidget(Base, Form):
             QSlider, "rightFanSpeed_slider")
         self.rightFanSpeed_slider.valueChanged.connect(
             self.rightFanSpeed_sliderChanged)
+        
+        # after 2 seconds reconnect the signals
+        QTimer.singleShot(500, self.reconnectSignals)      
+        
+    # funcyion to reconnect the tumbler signals 
+    def reconnectSignals(self):
+        self.LeftTempTumbler.rootObject().valueChanged.connect(self.onLeftTempChanged)
+        self.RightTempTumbler.rootObject().valueChanged.connect(self.onRightTempChanged)
 
     def changeTemperature(self, tumbler_widget, change):
         """Change tumbler value by incrementing or decrementing."""

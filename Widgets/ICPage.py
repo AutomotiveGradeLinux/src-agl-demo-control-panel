@@ -12,6 +12,7 @@ from PyQt6.QtGui import QIcon, QPixmap, QPainter
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from PyQt6.QtWidgets import QWidget, QFrame, QDockWidget
 from PyQt6.QtQuickWidgets import QQuickWidget
+from PyQt6.QtCore import QTimer
 import threading
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -65,6 +66,8 @@ def Gauge(gaugeType):
     gauge.setResizeMode(QQuickWidget.ResizeMode.SizeRootObjectToView)
     gauge.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding,
                         QtWidgets.QSizePolicy.Policy.Expanding)
+    
+    gauge.rootContext().setContextObject(gauge)
 
     return gauge
 
@@ -139,7 +142,6 @@ class ICWidget(Base, Form):
         self.Speed_Gauge = Gauge("Speed")
         self.Frame_1.layout().replaceWidget(Speed_Gauge_Placeholder, self.Speed_Gauge)
 
-        self.Speed_slider.valueChanged.connect(self.update_Speed_gauge)
         self.Speed_slider.setMinimum(0)
         self.Speed_slider.setMaximum(240)
 
@@ -148,7 +150,6 @@ class ICWidget(Base, Form):
         self.RPM_Gauge = Gauge("RPM")
         self.Frame_1.layout().replaceWidget(RPM_Gauge_Placeholder, self.RPM_Gauge)
 
-        self.RPM_slider.valueChanged.connect(self.update_RPM_monitor)
         self.RPM_slider.setMinimum(0)
         self.RPM_slider.setMaximum(8000)
 
@@ -163,11 +164,6 @@ class ICWidget(Base, Form):
         self.Coolant_Gauge = Gauge("Coolant")
         self.Coolant_Gauge_Frame.layout().replaceWidget(
             coolant_Gauge_Placeholder, self.Coolant_Gauge)
-
-        self.coolantTemp_slider.valueChanged.connect(
-            self.update_coolantTemp_monitor)
-        self.fuelLevel_slider.valueChanged.connect(
-            self.update_fuelLevel_monitor)
 
         self.leftIndicatorBtn.setCheckable(True)
         self.rightIndicatorBtn.setCheckable(True)
@@ -189,6 +185,26 @@ class ICWidget(Base, Form):
         self.TirePressureBtn = self.findChild(
             QtWidgets.QPushButton, "TirePressureBtn")
         self.TirePressureBtn.clicked.connect(self.toggle_TirePressureDock)
+
+        # after 2 seconds reconnect the signals
+        QTimer.singleShot(500, self.reconnectSignals)
+
+        # hide Tirepressure dock by default
+        self.Hide_TirePressure(True)
+
+    # function to reconnect all the gauge signals
+    def reconnectSignals(self):
+        self.Speed_Gauge.rootObject().speedValueChanged.connect(lambda value: self.update_Speed("gauge", value))
+        self.Speed_slider.valueChanged.connect(lambda : self.update_Speed("slider", self.Speed_slider.value()))
+
+        self.RPM_Gauge.rootObject().rpmValueChanged.connect(lambda value: self.update_RPM("gauge", value))
+        self.RPM_slider.valueChanged.connect(lambda : self.update_RPM("slider", self.RPM_slider.value()))
+
+        self.Coolant_Gauge.rootObject().coolantTempValueChanged.connect(lambda value: self.update_coolantTemp("gauge", value))
+        self.coolantTemp_slider.valueChanged.connect(lambda : self.update_coolantTemp("slider", self.coolantTemp_slider.value()))
+
+        self.Fuel_Gauge.rootObject().fuelLevelValueChanged.connect(lambda value: self.update_fuelLevel("gauge", value))
+        self.fuelLevel_slider.valueChanged.connect(lambda : self.update_fuelLevel("slider", self.fuelLevel_slider.value()))
 
     def toggle_TirePressureDock(self):
         if self.TirePressureBtn.isChecked():
@@ -233,58 +249,126 @@ class ICWidget(Base, Form):
             self.rightIndicatorBtn.setChecked(False)
 
     def set_Vehicle_Speed(self, speed):
-        self.Speed_slider.setValue(speed)
+        self.Speed_Gauge.rootObject().setProperty('value', speed)
 
     def set_Vehicle_RPM(self, rpm):
-        self.RPM_slider.setValue(rpm)
+        self.RPM_Gauge.rootObject().setProperty('value', rpm)
 
-    def update_Speed_gauge(self):
+    def update_Speed(self, source, value):
         """
-        Updates the speed monitor with the current speed value.
+        Updates the speed value with the current value from either the gauge or the slider.
+
+        Parameters:
+            value: The speed value to update.
+            source: A string indicating the source of the value ('gauge' or 'slider').
         """
-        speed = int(self.Speed_slider.value())
-        speed = speed / 240
-        self.Speed_Gauge.rootObject().setProperty('value', speed)
+
+        speed = int(value)
+
+        if source == 'gauge':
+            # Update slider to reflect the gauge's value
+            self.Speed_slider.blockSignals(True)
+            self.Speed_slider.setValue(speed)
+            print(speed)
+            self.Speed_slider.blockSignals(False)
+
+        elif source == 'slider':
+            # Set animation duration to 0 for immediate update
+            self.Speed_Gauge.rootObject().setProperty('animationDuration', 0)
+
+            # Update gauge to reflect the slider's value
+            self.Speed_Gauge.blockSignals(True)
+            self.Speed_Gauge.rootObject().setProperty('value', speed)
+            self.Speed_Gauge.blockSignals(False)
+
+            # Reset animation duration for smooth transitions
+            self.Speed_Gauge.rootObject().setProperty('animationDuration', 500)
+
+        # Send updated speed to kuksa if simulator is not running
         if not self.simulator_running:
             try:
                 self.kuksa_client.set(self.IC.speed, str(speed), 'value')
             except Exception as e:
                 logging.error(f"Error sending values to kuksa {e}")
 
-    def update_RPM_monitor(self):
+    def update_RPM(self, source, value):
         """
-        Updates the RPM monitor with the current RPM value.
+        Updates the RPM value with the current value from either the gauge or the slider.
+
+        Parameters:
+            value: The RPM value to update.
+            source: A string indicating the source of the value ('gauge' or 'slider').
         """
-        rpm = int(self.RPM_slider.value())
-        rpm = rpm / 8000
-        self.RPM_Gauge.rootObject().setProperty('value', rpm)
+
+        rpm = int(value)
+
+        if source == 'gauge':
+            # Update slider to reflect the gauge's value
+            self.RPM_slider.blockSignals(True)
+            self.RPM_slider.setValue(int(rpm))
+            self.RPM_slider.blockSignals(False)
+
+        elif source == 'slider':
+            # Set animation duration to 0 for immediate update
+            self.RPM_Gauge.rootObject().setProperty('animationDuration', 0)
+
+            # Update gauge to reflect the slider's value
+            self.RPM_Gauge.blockSignals(True)
+            self.RPM_Gauge.rootObject().setProperty('value', rpm)
+            self.RPM_Gauge.blockSignals(False)
+
+            # Reset animation duration for smooth transitions
+            self.RPM_Gauge.rootObject().setProperty('animationDuration', 1000)
+
+        # Send updated RPM to kuksa if simulator is not running
         if not self.simulator_running:
             try:
                 self.kuksa_client.set(self.IC.engineRPM, str(rpm), 'value')
             except Exception as e:
                 logging.error(f"Error sending values to kuksa {e}")
 
-    def update_coolantTemp_monitor(self):
+    def update_coolantTemp(self, source, value):
         """
-        Updates the coolant temperature monitor with the current coolant temperature value.
+        Updates the coolant temperature with the current coolant temperature value from the gauge. or the slider.
         """
-        coolantTemp = int(self.coolantTemp_slider.value())
-        gaugeValue = coolantTemp / 100
-        self.Coolant_Gauge.rootObject().setProperty('value', gaugeValue)
+        coolantTemp = int(value)
+
+        if source == 'gauge':
+            # Update slider to reflect the gauge's value
+            self.coolantTemp_slider.blockSignals(True)
+            self.coolantTemp_slider.setValue(coolantTemp)
+            self.coolantTemp_slider.blockSignals(False)
+        elif source == 'slider':
+            # Update gauge to reflect the slider's value
+            self.Coolant_Gauge.rootObject().setProperty('animationDuration', 0)
+            self.Coolant_Gauge.blockSignals(True)
+            self.Coolant_Gauge.rootObject().setProperty('value', coolantTemp)
+            self.Coolant_Gauge.blockSignals(False)
+            self.Coolant_Gauge.rootObject().setProperty('animationDuration', 1000)
         try:
             self.kuksa_client.set(
                 self.IC.coolantTemp, str(coolantTemp), 'value')
         except Exception as e:
             logging.error(f"Error sending values to kuksa {e}")
 
-    def update_fuelLevel_monitor(self):
+    def update_fuelLevel(self, source, value):
         """
-        Updates the fuel level monitor with the current fuel level value.
+        Updates the fuel level with the current fuel level value from the gauge. or the slider.
         """
-        fuelLevel = int(self.fuelLevel_slider.value())
-        FuelGaugeLevel = fuelLevel / 100
-        self.Fuel_Gauge.rootObject().setProperty('value', FuelGaugeLevel)
-        print(self.Fuel_Gauge.rootObject().property('value'))
+        fuelLevel = int(value)
+
+        if source == 'gauge':
+            # Update slider to reflect the gauge's value
+            self.fuelLevel_slider.blockSignals(True)
+            self.fuelLevel_slider.setValue(fuelLevel)
+            self.fuelLevel_slider.blockSignals(False)
+        elif source == 'slider':
+            # Update gauge to reflect the slider's value
+            self.Fuel_Gauge.rootObject().setProperty('animationDuration', 0)
+            self.Fuel_Gauge.blockSignals(True)
+            self.Fuel_Gauge.rootObject().setProperty('value', fuelLevel)
+            self.Fuel_Gauge.blockSignals(False)
+            self.Fuel_Gauge.rootObject().setProperty('animationDuration', 1000)
         try:
             self.kuksa_client.set(self.IC.fuelLevel, str(fuelLevel))
         except Exception as e:
@@ -394,20 +478,23 @@ class ICWidget(Base, Form):
                 self.Script_toggle.showError()
                 self.Script_toggle.setChecked(False)
                 return
-            try:
-                self.Playback = CAN_playback()
-                self.Playback_connections()
-            except Exception as e:
-                self.Script_toggle.showError()
-                logging.error(f"Error creating playback object {e}")
-                return
 
             if self.Script_toggle.isChecked():
-                # start the playback thread
-                self.thread = QThread()
-                self.Playback.moveToThread(self.thread)
-                self.thread.started.connect(self.Playback.playback_messages)
-                self.thread.start()
+                # self.Playback.start()
+                print("Playback started")
+                
+                try:
+                    if self.Playback is None:
+                        self.Playback = CAN_playback()
+                except Exception as e:
+                    logging.error(f"Error creating playback object {e}")
+                    self.Script_toggle.showError()
+                    return
+
+                if not self.Playback.isRunning():
+                        self.Playback.start_playback()
+                else:
+                    self.Playback_connections()
                 # hide sliders from the layout, their space will be taken by the playback widgets
                 self.Speed_slider.hide()
                 self.RPM_slider.hide()
@@ -415,12 +502,15 @@ class ICWidget(Base, Form):
                 # set default values for coolent and fuel
                 self.coolantTemp_slider.setValue(90)
                 self.fuelLevel_slider.setValue(50)
-
-            elif not self.Script_toggle.isChecked():
-                self.Playback.stop()
-                self.thread.quit()
-                self.thread.wait()
-
+            else:
+                # self.Playback.stop_and_join()
+                if self.Playback and self.Playback.isRunning:
+                    self.Playback.stop_playback()
+                    self.Playback.wait()
+                    #self.Playback.finished.connect(self.Playback.deleteLater)
+                    self.Playback = None
+                
+                print("Playback stopped")
                 self.Speed_slider.show()
                 self.RPM_slider.show()
 
@@ -471,7 +561,7 @@ class ICWidget(Base, Form):
         self.RPM_slider.setValue(self.current_rpm)
 
         self.update_Speed_gauge()
-        self.update_RPM_monitor()
+        self.update_RPM_Gauge()
 
     def driveBtnClicked(self):
         gear_mapping = {

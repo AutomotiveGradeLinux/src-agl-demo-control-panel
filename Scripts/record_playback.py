@@ -34,7 +34,6 @@ class CAN_playback(QThread):
     def __init__(self, interface='vcan0'):
         super(CAN_playback, self).__init__()
         self._running = False
-
         self.console_mode = False
         self.interface = interface
         self.bus = can.interface.Bus(interface='socketcan', channel=self.interface, bitrate=500000)
@@ -57,7 +56,8 @@ class CAN_playback(QThread):
             for msg in messages:
                 file.write(f"{msg.timestamp},{msg.arbitration_id},{msg.dlc},{','.join(map(lambda b: f'0x{b:02x}', msg.data))}\n")
 
-    def playback_messages(self):
+    def run(self):
+        """Override run method to handle playback messages."""
         if os.path.exists(self.output_file):
             messages = []
             with open(self.output_file, 'r') as file:
@@ -75,16 +75,41 @@ class CAN_playback(QThread):
                     messages.append(msg)
             self.replay_messages(messages)
 
-    def stop(self):
+    def start_playback(self):
+        """Start playback if not already running."""
+        if not self._running:
+            self._running = True
+            self.start()  # Start the QThread
+
+
+    def stop_playback(self):
+        """Stop playback."""
+        if self._running:
+            self.reset()
+            
+            # Wait for thread to finish before shutting down the bus
+            self.wait(1000)
+                
+            self.finished.emit()
+
+    def reset(self):
+        """Reset the playback."""
         self._running = False
-        if self.bus is not None:
-            self.bus.shutdown()
-        self.finished.emit()
+        self.speedUpdate.emit(0)
+        self.gearUpdate.emit("N")
+        self.engineSpeedUpdate.emit(0)
+        self.throttleUpdate.emit(0)
+        self.indicatorUpdate.emit("HazardOff")
 
     def replay_messages(self, messages):
-        self._running = True
+        """Replay CAN messages."""
+        # self._running = True
         start_time = messages[0].timestamp
+
         for msg in messages:
+            if not self._running:  # Check if playback should stop
+                return
+            
             delay = msg.timestamp - start_time
             self.bus.send(msg)
             
@@ -97,8 +122,6 @@ class CAN_playback(QThread):
             
             time.sleep(delay)
             start_time = msg.timestamp
-            if not self._running:
-                return
 
     def decode_message(self, message_name, data):
         message = self.db.get_message_by_name(message_name)
@@ -178,29 +201,38 @@ def main():
 
     console = Console()
     while True:
-        console.print("\n[bold]CAN Message Capture and Playback[/bold]")
-        console.print("1. Capture CAN messages")
-        console.print("2. Replay captured messages")
-        console.print("3. Exit")
-
-        choice = Prompt.ask("Enter your choice", choices=['1', '2', '3'])
-
-        if choice == '1':
-            messages = can_tool.capture_can_messages()
-            console.print(f"Captured {len(messages)} messages.")
-            can_tool.write_to_file(messages)
-            console.print(f"CAN messages written to {can_tool.output_file}")
-        elif choice == '2':
-            if os.path.exists(can_tool.output_file):
-                console.print("Replaying captured messages...")
-                can_tool.playback_messages()
-                console.print("Replay completed.")
-            else:
-                console.print(f"No captured messages found in {can_tool.output_file}")
-            
+        if can_tool._running:
+            console.print("Playback in progress. Please stop playback before capturing new messages.")
+            # ask for input 1 to stop playback
+            choice = Prompt.ask("Enter your choice", choices=['1'])
+            if choice == '1':
+                can_tool.stop_playback()
+                console.print("Playback stopped. Ready to capture new messages.")
+                continue
         else:
-            console.print("Exiting...")
-            break
+            console.print("\n[bold]CAN Message Capture and Playback[/bold]")
+            console.print("1. Capture CAN messages")
+            console.print("2. Replay captured messages")
+            console.print("3. Exit")
+    
+            choice = Prompt.ask("Enter your choice", choices=['1', '2', '3'])
+    
+            if choice == '1':
+                messages = can_tool.capture_can_messages()
+                console.print(f"Captured {len(messages)} messages.")
+                can_tool.write_to_file(messages)
+                console.print(f"CAN messages written to {can_tool.output_file}")
+            elif choice == '2':
+                if os.path.exists(can_tool.output_file):
+                    console.print("Replaying captured messages...")
+                    can_tool.start_playback()
+                    console.print("Replay completed.")
+                else:
+                    console.print(f"No captured messages found in {can_tool.output_file}")
+                
+            else:
+                console.print("Exiting...")
+                break
 
 if __name__ == "__main__":
     main()

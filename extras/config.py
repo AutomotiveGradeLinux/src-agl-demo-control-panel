@@ -158,6 +158,25 @@ def save_config(new_config, auth_token, CA_File=None):
         config.write(configfile)
 
 
+# check the keypad-features wanted
+
+def keypad_enabled():
+    return config.getboolean('keypad-feature', 'enabled', fallback=False)
+
+def keypad_only():
+    return config.getboolean('keypad-feature', 'keypad-only', fallback=False)
+
+def get_keypad_config():
+    # return the ip and port of the keypad if specified, else return localhost and 8080
+    ip = config.get('keypad-feature', 'ip', fallback=False)
+    port = config.get('keypad-feature', 'port', fallback=False)
+    return ip if ip else "localhost", port if port else "8080"
+
+def get_keypad_keys_to_hide():
+    # return the keys to hide if specified, else return an empty
+    keys = config.get('keypad-feature', 'keys-to-hide', fallback=False)
+    return keys.split(',') if keys else []
+
 def fullscreen_mode():
     return config.getboolean('default', 'fullscreen-mode', fallback=False)
 

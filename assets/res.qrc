@@ -40,6 +40,13 @@
     <file>carbon_icons/windy--strong-disabled.svg</file>
   </qresource>
   <qresource prefix="Images">
+    <file>Images/grid.svg</file>
+    <file>Images/qt_demo.png</file>
+    <file>Images/flutter_demo.png</file>
+    <file>Images/Key_4.png</file>
+    <file>Images/Key_3.png</file>
+    <file>Images/Key_2.png</file>
+    <file>Images/Key_1.png</file>
     <file>Images/tire-pressure.svg</file>
     <file>Images/HMI_HVAC_Fan_Icon.svg</file>
     <file>Images/AGL_Icons_LaneDeparture_white.svg</file>
