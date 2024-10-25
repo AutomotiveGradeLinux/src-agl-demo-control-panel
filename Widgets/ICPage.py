@@ -209,12 +209,13 @@ class ICWidget(Base, Form):
     def toggle_TirePressureDock(self):
         if self.TirePressureBtn.isChecked():
             self.Hide_TirePressure(True)
+            self.TirePressureBtn.setChecked(True)
         else:
             self.Hide_TirePressure(False)
+            self.TirePressureBtn.setChecked(False)
 
     def Hide_TirePressure(self, bool_arg):
-        widthExtended = 0 if bool_arg else 400
-        self.TirePressureDock.setFixedWidth(widthExtended)
+        self.TirePressureDock.setVisible(bool_arg)
         
 
     def Playback_connections(self):
