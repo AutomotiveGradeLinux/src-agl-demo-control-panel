@@ -32,6 +32,7 @@ from extras.VehicleSimulator import VehicleSimulator
 from Scripts.record_playback import CAN_playback
 import res_rc
 from Widgets.animatedToggle import AnimatedToggle
+from Widgets import TirePressure
 
 def Gauge(gaugeType):
     """QWidget
@@ -182,6 +183,8 @@ class ICWidget(Base, Form):
             logging.error(f"Error creating playback object {e}")
 
         self.TirePressureDock = self.findChild(QDockWidget, "TirePressureDock")
+        self.dockWidgetContents = self.TirePressureDock.widget()
+        self.TirePressure = self.dockWidgetContents.findChild(QWidget, "TirePressure")
         self.TirePressureBtn = self.findChild(
             QtWidgets.QPushButton, "TirePressureBtn")
         self.TirePressureBtn.clicked.connect(self.toggle_TirePressureDock)
@@ -209,10 +212,15 @@ class ICWidget(Base, Form):
     def toggle_TirePressureDock(self):
         if self.TirePressureBtn.isChecked():
             self.Hide_TirePressure(True)
+            self.TirePressure.kuksa_client.start()
+            print("TirePressureDock is visible")
+            
             self.TirePressureBtn.setChecked(True)
         else:
             self.Hide_TirePressure(False)
+            self.TirePressure.kuksa_client.stop()
             self.TirePressureBtn.setChecked(False)
+            print("TirePressureDock is hidden")
 
     def Hide_TirePressure(self, bool_arg):
         self.TirePressureDock.setVisible(bool_arg)
@@ -270,7 +278,6 @@ class ICWidget(Base, Form):
             # Update slider to reflect the gauge's value
             self.Speed_slider.blockSignals(True)
             self.Speed_slider.setValue(speed)
-            print(speed)
             self.Speed_slider.blockSignals(False)
 
         elif source == 'slider':
@@ -286,11 +293,11 @@ class ICWidget(Base, Form):
             self.Speed_Gauge.rootObject().setProperty('animationDuration', 500)
 
         # Send updated speed to kuksa if simulator is not running
-        if not self.simulator_running:
-            try:
-                self.kuksa_client.set(self.IC.speed, str(speed), 'value')
-            except Exception as e:
-                logging.error(f"Error sending values to kuksa {e}")
+        # if not self.simulator_running:
+        try:
+            threading.Thread(target=self.kuksa_client.set, args=(self.IC.speed, str(speed), 'value')).start()
+        except Exception as e:
+            logging.error(f"Error sending values to kuksa {e}")
 
     def update_RPM(self, source, value):
         """
@@ -322,11 +329,11 @@ class ICWidget(Base, Form):
             self.RPM_Gauge.rootObject().setProperty('animationDuration', 1000)
 
         # Send updated RPM to kuksa if simulator is not running
-        if not self.simulator_running:
-            try:
-                self.kuksa_client.set(self.IC.engineRPM, str(rpm), 'value')
-            except Exception as e:
-                logging.error(f"Error sending values to kuksa {e}")
+        # if not self.simulator_running:
+        try:
+            threading.Thread(target=self.kuksa_client.set, args=(self.IC.engineRPM, str(rpm), 'value')).start()
+        except Exception as e:
+            logging.error(f"Error sending values to kuksa {e}")
 
     def update_coolantTemp(self, source, value):
         """
@@ -347,8 +354,7 @@ class ICWidget(Base, Form):
             self.Coolant_Gauge.blockSignals(False)
             self.Coolant_Gauge.rootObject().setProperty('animationDuration', 1000)
         try:
-            self.kuksa_client.set(
-                self.IC.coolantTemp, str(coolantTemp), 'value')
+            threading.Thread(target=self.kuksa_client.set, args=(self.IC.coolantTemp, str(coolantTemp), 'value')).start()
         except Exception as e:
             logging.error(f"Error sending values to kuksa {e}")
 
@@ -371,7 +377,7 @@ class ICWidget(Base, Form):
             self.Fuel_Gauge.blockSignals(False)
             self.Fuel_Gauge.rootObject().setProperty('animationDuration', 1000)
         try:
-            self.kuksa_client.set(self.IC.fuelLevel, str(fuelLevel))
+            threading.Thread(target=self.kuksa_client.set, args=(self.IC.fuelLevel, str(fuelLevel), 'value')).start()
         except Exception as e:
             logging.error(f"Error sending values to kuksa {e}")
 
@@ -482,7 +488,7 @@ class ICWidget(Base, Form):
 
             if self.Script_toggle.isChecked():
                 # self.Playback.start()
-                print("Playback started")
+                logging.info("Starting playback")
                 
                 try:
                     if self.Playback is None:
@@ -490,6 +496,12 @@ class ICWidget(Base, Form):
                 except Exception as e:
                     logging.error(f"Error creating playback object {e}")
                     self.Script_toggle.showError()
+                    return
+                # Check if playback file exists and is not empty
+                if not os.path.exists(self.Playback.output_file) or os.stat(self.Playback.output_file).st_size == 0:
+                    logging.error("Playback file, %s, does not exist or is empty", self.Playback.output_file)
+                    self.Script_toggle.showError()  # Show error on toggle button
+                    self.Script_toggle.setChecked(False)  # Uncheck the toggle
                     return
 
                 if not self.Playback.isRunning():
@@ -511,7 +523,7 @@ class ICWidget(Base, Form):
                     #self.Playback.finished.connect(self.Playback.deleteLater)
                     self.Playback = None
                 
-                print("Playback stopped")
+                logging.info("Playback stopped")
                 self.Speed_slider.show()
                 self.RPM_slider.show()
 
@@ -524,6 +536,8 @@ class ICWidget(Base, Form):
                     button.setEnabled(False)
                 self.set_Vehicle_RPM(1000)
                 self.set_Vehicle_Speed(0)
+                self.coolantTemp_slider.setValue(90)
+                self.fuelLevel_slider.setValue(50)
                 self.simulator_running = True
                 self.simulator.start()
             else:
@@ -584,7 +598,7 @@ class ICWidget(Base, Form):
             except Exception as e:
                 logging.error(f"Error sending values to kuksa {e}")
         else:
-            print("Unknown button checked!")
+            logging.error("No gear selected")
 
 
 class AccelerationFns():

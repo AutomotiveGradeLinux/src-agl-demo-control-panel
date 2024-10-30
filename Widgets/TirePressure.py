@@ -6,18 +6,19 @@
 import os
 import sys
 from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QPushButton, QWidget, QLabel
+from PyQt6.QtWidgets import QApplication, QPushButton, QWidget, QLabel, QLCDNumber
+from PyQt6.QtCore import QTimer
 from PyQt6.QtQuickWidgets import QQuickWidget
 from PyQt6.QtWidgets import QSizePolicy
 from PyQt6.QtCore import QUrl
 import logging
+import json
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # ========================================
 
 sys.path.append(os.path.dirname(current_dir))
-
 
 Form, Base = uic.loadUiType(os.path.join(current_dir, "../ui/TirePressure.ui"))
 
@@ -78,21 +79,49 @@ class TirePressure(Base, Form):
         self.TPIncreaseBtn = self.findChild(QPushButton, "TPIncreaseBtn")
         self.TPDecreaseBtn = self.findChild(QPushButton, "TPDecreaseBtn")
         self.TPUnit = self.findChild(QLabel, "TPUnit")
+        self.TPLCD = self.findChild(QLCDNumber, "TPLCD")
 
+        self.TireSelector.rootObject().valueChanged.connect(self.update_TP_LCD_value)
         self.TPIncreaseBtn.clicked.connect(self.increase_pressure)
         self.TPDecreaseBtn.clicked.connect(self.decrease_pressure)
 
-    def get_Current(self, tire):
-        """
-        Initializes the TirePressure widget.
-        """
+        # after 2 seconds reconnect the signals
+        QTimer.singleShot(500, self.reconnectSignals)  
 
+    def reconnectSignals(self):
+        self.TireSelector.rootObject().valueChanged.connect(self.update_TP_LCD_value)
+
+    def update_TP_LCD_value(self):
+        """
+        Updates the value on the LCD display when a new tire is selected.
+        """
+        selected_tire = self.TireSelector.rootObject().property("selectedTireIndex")
+        print(selected_tire)
+        tire = str(self.TirePressurePath.Tires[selected_tire])
         try:
-            self.TPUnit = self.kuksa_client.get("Vehicle.Cabin.Infotainment.HMI.TirePressureUnit")
-            return self.kuksa_client.get(self.TirePressurePath.Tires[tire])
+            value = int(json.loads(self.kuksa_client.get(tire))["value"]["value"])
+            self.set_LCD_Value(value)
+            
+            unit = str(json.loads(self.kuksa_client.get("Vehicle.Cabin.Infotainment.HMI.TirePressureUnit"))["value"]["value"])
+            self.TPUnit.setText(unit)
         except Exception as e:
-            logging.error(f"Error getting tire pressure values: {e}")
+            logging.error(e)
 
+    def set_LCD_Value(self, value):
+        """
+        Sets the value of the LCD display.
+        """
+        self.TPLCD.display(value)
+
+    def get_selected_tire_pressure(self):
+        """
+        Gets the pressure of the selected tire.
+        """
+
+        selected_tire = self.TireSelector.rootObject().property("selectedTireIndex")
+        tire = str(self.TirePressurePath.Tires[selected_tire])
+        value = int(json.loads(self.kuksa_client.get(tire))["value"]["value"])
+        return value
 
     def increase_pressure(self):
         """
@@ -101,27 +130,31 @@ class TirePressure(Base, Form):
 
         selected_tire = self.TireSelector.rootObject().property("selectedTireIndex")
         
-        current_pressure = self.get_Current(selected_tire)
-        if current_pressure is None:
+        if selected_tire == -1:
             return
-        else:
-            self.kuksa_client.setValues({self.TirePressurePath.Tires[selected_tire]: current_pressure + 1})
+        
+        tire = str(self.TirePressurePath.Tires[selected_tire])
+        current = self.get_selected_tire_pressure()
+        self.kuksa_client.set(tire, current + 1)
+        self.set_LCD_Value(current + 1)
 
 
     def decrease_pressure(self):
         """
         Decreases the pressure of the selected tire.
         """
-
+    
         selected_tire = self.TireSelector.rootObject().property("selectedTireIndex")
 
-        current_pressure = self.get_Current(selected_tire)
-        if current_pressure is None:
+        if selected_tire == -1:
             return
-        else:
-            self.kuksa_client.setValues({self.TirePressurePath.Tires[selected_tire]: current_pressure - 1})
-
         
+        tire = str(self.TirePressurePath.Tires[selected_tire])
+        current = self.get_selected_tire_pressure()
+        self.kuksa_client.set(tire, current - 1)
+        self.set_LCD_Value(current - 1)
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = TirePressure()

@@ -151,6 +151,7 @@ class KuksaClient(QThread):
         
         if self.client is None:
             logging.error("Kuksa client is None, try reconnecting")
+            self.set_instance()
             return
 
         if not self.client.checkConnection():

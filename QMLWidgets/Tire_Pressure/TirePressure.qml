@@ -16,6 +16,7 @@ Item {
     property color darkbg: "#131313"
 
     property int selectedTireIndex: -1
+    signal valueChanged(int newValue)
 
     // Move these functions here so they're accessible to all buttons
     function resetAllButtons() {
@@ -33,6 +34,7 @@ Item {
 
     function selectButton(index) {
         selectedTireIndex = index;
+        valueChanged(index);
         
         switch(index) {
             case 0:

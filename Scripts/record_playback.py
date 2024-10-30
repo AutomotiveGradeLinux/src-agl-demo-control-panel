@@ -10,6 +10,7 @@ import argparse
 from PyQt6.QtCore import QThread, pyqtSignal
 import cantools
 import sys
+import logging
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(current_dir))
@@ -28,7 +29,7 @@ class CAN_playback(QThread):
     try:
         playbackFile = config.get_playback_file()
     except Exception as e:
-        print(e)
+        logging.error("Error loading playback file:", e)
         # playbackFile = os.path.join(current_dir, "can_messages.txt")
 
     def __init__(self, interface='vcan0'):
@@ -104,7 +105,11 @@ class CAN_playback(QThread):
     def replay_messages(self, messages):
         """Replay CAN messages."""
         # self._running = True
-        start_time = messages[0].timestamp
+        try:
+            start_time = messages[0].timestamp  
+        except IndexError:
+            logging.error("No messages to replay from file:", self.output_file)
+            self.reset()
 
         for msg in messages:
             if not self._running:  # Check if playback should stop
@@ -161,7 +166,6 @@ class CAN_playback(QThread):
 
         if decoded_data['PT_LeftTurnOn'] == 1:
             self.indicatorUpdate.emit('LeftBlinkerOn')
-            print("Left Blinker On")
         if decoded_data['PT_LeftTurnOn'] == 0:
             self.indicatorUpdate.emit('LeftBlinkerOff')
 
