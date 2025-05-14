@@ -70,7 +70,7 @@ class CAN(object):
             self.send_gear("D")
         else:
             self.send_gear("P")
-        data = self.speed_message.encode({'PT_VehicleAvgSpeed': speed})
+        data = self.speed_message.encode({'PT_VehicleSpeed': speed})
         message = can.Message(
             arbitration_id=self.speed_message.frame_id, data=data)
         self.can_bus.send(message)

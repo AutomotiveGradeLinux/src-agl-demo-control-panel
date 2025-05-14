@@ -133,7 +133,7 @@ class CAN_playback(QThread):
         return message.decode(data)
 
     def decode_speed(self, decoded_data):
-        speed = int(decoded_data['PT_VehicleAvgSpeed'])
+        speed = int(decoded_data['PT_VehicleSpeed'])
         self.speedUpdate.emit(speed)
 
     def decode_gear(self, decoded_data):
