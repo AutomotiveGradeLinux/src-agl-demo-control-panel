@@ -176,11 +176,12 @@ class ICWidget(Base, Form):
 
         self.Script_toggle.clicked.connect(self.handle_Script_toggle)
 
-        try:
-            self.Playback = CAN_playback()
-            self.Playback_connections()
-        except Exception as e:
-            logging.error(f"Error creating playback object {e}")
+        if config.file_playback_enabled():
+            try:
+                self.Playback = CAN_playback()
+                self.Playback_connections()
+            except Exception as e:
+                logging.error(f"Error creating playback object {e}")
 
         self.TirePressureDock = self.findChild(QDockWidget, "TirePressureDock")
         self.dockWidgetContents = self.TirePressureDock.widget()

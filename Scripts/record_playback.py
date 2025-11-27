@@ -26,11 +26,11 @@ class CAN_playback(QThread):
     throttleUpdate = pyqtSignal(int)
     indicatorUpdate = pyqtSignal(str)
 
-    try:
-        playbackFile = config.get_playback_file()
-    except Exception as e:
-        logging.error("Error loading playback file:", e)
-        # playbackFile = os.path.join(current_dir, "can_messages.txt")
+    if config.file_playback_enabled():
+        try:
+            playbackFile = config.get_playback_file()
+        except Exception as e:
+            logging.error("Error loading playback file:", e)
 
     def __init__(self, interface='vcan0'):
         super(CAN_playback, self).__init__()
