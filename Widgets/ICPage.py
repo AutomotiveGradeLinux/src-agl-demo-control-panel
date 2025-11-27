@@ -294,11 +294,11 @@ class ICWidget(Base, Form):
             self.Speed_Gauge.rootObject().setProperty('animationDuration', 500)
 
         # Send updated speed to kuksa if simulator is not running
-        # if not self.simulator_running:
-        try:
-            threading.Thread(target=self.kuksa_client.set, args=(self.IC.speed, str(speed), 'value')).start()
-        except Exception as e:
-            logging.error(f"Error sending values to kuksa {e}")
+        if not self.simulator_running:
+            try:
+                threading.Thread(target=self.kuksa_client.set, args=(self.IC.speed, str(speed), 'value')).start()
+            except Exception as e:
+                logging.error(f"Error sending values to kuksa {e}")
 
     def update_RPM(self, source, value):
         """
@@ -330,11 +330,11 @@ class ICWidget(Base, Form):
             self.RPM_Gauge.rootObject().setProperty('animationDuration', 1000)
 
         # Send updated RPM to kuksa if simulator is not running
-        # if not self.simulator_running:
-        try:
-            threading.Thread(target=self.kuksa_client.set, args=(self.IC.engineRPM, str(rpm), 'value')).start()
-        except Exception as e:
-            logging.error(f"Error sending values to kuksa {e}")
+        if not self.simulator_running:
+            try:
+                threading.Thread(target=self.kuksa_client.set, args=(self.IC.engineRPM, str(rpm), 'value')).start()
+            except Exception as e:
+                logging.error(f"Error sending values to kuksa {e}")
 
     def update_coolantTemp(self, source, value):
         """
