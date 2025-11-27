@@ -130,8 +130,8 @@ class SteeringCtrlWidget(Base, Form):
         button_clicked = button.objectName()
         signal_type = settings.Steering_Signal_Type
         if signal_type == "VSS":
-            self.kuksa_client.set(self.Steering.switches[button_clicked]["VSS"], "1")
-            self.kuksa_client.set(self.Steering.switches[button_clicked]["VSS"], "0")
+            self.kuksa_client.set(self.Steering.switches[button_clicked]["VSS"], "true")
+            self.kuksa_client.set(self.Steering.switches[button_clicked]["VSS"], "false")
         elif signal_type == "CAN":
             feed_can.send_can_signal(
                 self.Steering.switches[button_clicked]["CAN"])

@@ -34,7 +34,7 @@ Form, Base = uic.loadUiType(os.path.join(
 # ========================================
 
 # Global Variables
-Steering_Signal_Type = "Kuksa"
+Steering_Signal_Type = "VSS"
 Protocol = None
 
 class settings(Base, Form):
