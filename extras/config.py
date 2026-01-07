@@ -42,13 +42,8 @@ CA_PATHS = check_paths(
         __file__), "../assets/cert/CA.pem"))
 )
 
-WS_TOKEN_PATHS = check_paths(
-    f"/usr/lib/{python_version}/site-packages/kuksa_client/kuksa_server_certificates/jwt/super-admin.json.token",
-    os.path.join(os.path.expanduser(
-        "~"), f".local/lib/{python_version}/site-packages/kuksa_client/kuksa_server_certificates/jwt/super-admin.json.token")
-)
-
 GRPC_TOKEN_PATHS = check_paths(
+    "/etc/xdg/AGL/agl-demo-control-panel/agl-demo-control-panel.token",
     os.path.abspath(os.path.join(os.path.dirname(__file__),
                     "../assets/token/grpc/actuate-provide-all.token"))
 )
@@ -59,7 +54,6 @@ if config_path:
     config.read(config_path)
 
 CA_PATH = next((path for path, exists in CA_PATHS.items() if exists), None)
-WS_TOKEN = next((path for path, exists in WS_TOKEN_PATHS.items() if exists), None)
 GRPC_TOKEN = next((path for path, exists in GRPC_TOKEN_PATHS.items() if exists), None)
 
 KUKSA_CONFIG = {}
@@ -108,10 +102,7 @@ def load_config():
 
 
 def get_default_token(protocol):
-    if protocol == 'grpc':
-        return GRPC_TOKEN
-    else:
-        return WS_TOKEN
+    return GRPC_TOKEN
 
 
 def save_config(new_config, auth_token, CA_File=None):
@@ -125,7 +116,7 @@ def save_config(new_config, auth_token, CA_File=None):
     config.set('vss-server', 'insecure', str(new_config['insecure']))
     config.set('vss-server', 'tls_server_name',
                str(new_config['tls_server_name']))
-    if auth_token in WS_TOKEN_PATHS or auth_token in GRPC_TOKEN_PATHS or auth_token == 'default':
+    if auth_token in GRPC_TOKEN_PATHS or auth_token == 'default':
         config.set('vss-server', 'token', 'default')
     else:
         config.set('vss-server', 'token', str(auth_token))
