@@ -177,6 +177,9 @@ def hvac_enabled():
 def steering_wheel_enabled():
     return config.getboolean('default', 'steering-wheel-enabled', fallback=True)
 
+def tire_pressure_enabled():
+    return config.getboolean('default', 'tire-pressure-enabled', fallback=True)
+
 def file_playback_enabled():
     return config.getboolean('default', 'file-playback-enabled', fallback=True)
 

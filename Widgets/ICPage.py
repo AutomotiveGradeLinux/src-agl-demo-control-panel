@@ -188,7 +188,11 @@ class ICWidget(Base, Form):
         self.TirePressure = self.dockWidgetContents.findChild(QWidget, "TirePressure")
         self.TirePressureBtn = self.findChild(
             QtWidgets.QPushButton, "TirePressureBtn")
-        self.TirePressureBtn.clicked.connect(self.toggle_TirePressureDock)
+        if config.tire_pressure_enabled():
+            self.TirePressureBtn.clicked.connect(self.toggle_TirePressureDock)
+        else:
+            self.TirePressureBtn.setCheckable(False)
+            self.TirePressureBtn.setVisible(False)
 
         # after 2 seconds reconnect the signals
         QTimer.singleShot(500, self.reconnectSignals)
