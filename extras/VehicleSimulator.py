@@ -183,7 +183,7 @@ class VehicleSimulator(QObject):
 
         steeringAngle = random.randrange(-90, 90)
 
-        updates["Vehicle.OBD.ThrottlePosition"] = throttlePosition
+        updates["Vehicle.Powertrain.CombustionEngine.TPS"] = throttlePosition
         updates["Vehicle.Chassis.Brake.PedalPosition"] = brakePosition
         updates["Vehicle.Chassis.SteeringWheel.Angle"] = steeringAngle
         updates["Vehicle.CurrentLocation.Latitude"] = self.latitude

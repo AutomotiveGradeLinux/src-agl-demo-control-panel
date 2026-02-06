@@ -54,7 +54,7 @@ class GrpcSubscriptionThread(QThread):
             SubscribeEntry('Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling', View.FIELDS, (Field.VALUE,)),
             SubscribeEntry('Vehicle.Body.Lights.Hazard.IsSignaling', View.FIELDS, (Field.VALUE,)),
             SubscribeEntry('Vehicle.Powertrain.FuelSystem.RelativeLevel', View.FIELDS, (Field.VALUE,)),
-            SubscribeEntry('Vehicle.Powertrain.CombustionEngine.ECT', View.FIELDS, (Field.VALUE,)),
+            SubscribeEntry('Vehicle.Powertrain.CombustionEngine.EngineCoolant.Temperature', View.FIELDS, (Field.VALUE,)),
             SubscribeEntry('Vehicle.Powertrain.Transmission.SelectedGear', View.FIELDS, (Field.VALUE,)),
             SubscribeEntry('Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature', View.FIELDS, (Field.VALUE,)),
             SubscribeEntry('Vehicle.Cabin.HVAC.Station.Row1.Driver.FanSpeed', View.FIELDS, (Field.VALUE,)),
@@ -180,7 +180,7 @@ class UI_Handeler(MainWindow):
                     "Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling",
                     "Vehicle.Body.Lights.Hazard.IsSignaling",
                     "Vehicle.Powertrain.FuelSystem.RelativeLevel",
-                    "Vehicle.Powertrain.CombustionEngine.ECT",
+                    "Vehicle.Powertrain.CombustionEngine.EngineCoolant.Temperature",
                     "Vehicle.Powertrain.Transmission.SelectedGear",
                     "Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature",
                     "Vehicle.Cabin.HVAC.Station.Row1.Driver.FanSpeed",
@@ -252,7 +252,7 @@ class UI_Handeler(MainWindow):
             IC_Page.fuelLevel_slider.setValue(int(float(value)))
             IC_Page.fuelLevel_slider.blockSignals(False)
 
-        if path == "Vehicle.Powertrain.CombustionEngine.ECT":
+        if path == "Vehicle.Powertrain.CombustionEngine.EngineCoolant.Temperature":
             IC_Page.coolantTemp_slider.blockSignals(True)
             IC_Page.coolantTemp_slider.setValue(int(float(value)))
             IC_Page.coolantTemp_slider.blockSignals(False)

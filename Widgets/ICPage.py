@@ -81,7 +81,7 @@ class IC_Paths():
         self.rightIndicator = "Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling"
         self.hazard = "Vehicle.Body.Lights.Hazard.IsSignaling"
         self.fuelLevel = "Vehicle.Powertrain.FuelSystem.RelativeLevel"
-        self.coolantTemp = "Vehicle.Powertrain.CombustionEngine.ECT"
+        self.coolantTemp = "Vehicle.Powertrain.CombustionEngine.EngineCoolant.Temperature"
         self.selectedGear = "Vehicle.Powertrain.Transmission.SelectedGear"
 
 
